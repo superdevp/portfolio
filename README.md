@@ -1,9 +1,4 @@
 <img src="./Preview.png">
-<div align="center">
-    <a href="https://github.com/K1rsN7/portfolio/stargazers">
-        <img src="https://img.shields.io/github/stars/K1rsN7/portfolio?color=8FBAD0&labelColor=3D4245&style=for-the-badge" alt="Stars">
-    </a>
-</div>
 <h1 align="center">My Portfolio</h1>
 <p>Welcome to my portfolio! This website is a collection of my projects, achievements, and skills. Here you will find information about my work, certificates, and the technologies I work with.</p>
 
