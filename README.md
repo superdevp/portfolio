@@ -1,4 +1,4 @@
-<img src="./Preview.png">
+<!-- <img src="./Preview.png"> -->
 <h1 align="center">My Portfolio</h1>
 <p>Welcome to my portfolio! This website is a collection of my projects, achievements, and skills. Here you will find information about my work, certificates, and the technologies I work with.</p>
 
