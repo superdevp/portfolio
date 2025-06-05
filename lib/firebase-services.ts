@@ -348,7 +348,7 @@ export const genericService = {
       }))
 
       // Sort by order on client side if order field exists
-      return items.sort((a, b) => (a.order || 0) - (b.order || 0))
+      return items.sort((a, b) => ((a as any).order || 0) - ((b as any).order || 0))
     } catch (error) {
       console.error(`Error fetching ${collectionName}:`, error)
       return []
@@ -366,7 +366,7 @@ export const achievementsService = {
         id: doc.id,
         ...doc.data(),
       }))
-      return achievements.sort((a, b) => (a.order || 0) - (b.order || 0))
+      return achievements.sort((a, b) => ((a as any).order || 0) - ((b as any).order || 0))
     } catch (error) {
       console.error("Error fetching achievements:", error)
       return []
@@ -414,7 +414,7 @@ export const interestsService = {
         id: doc.id,
         ...doc.data(),
       }))
-      return interests.sort((a, b) => (a.order || 0) - (b.order || 0))
+      return interests.sort((a, b) => ((a as any).order || 0) - ((b as any).order || 0))
     } catch (error) {
       console.error("Error fetching interests:", error)
       return []

@@ -81,21 +81,21 @@ function AdminChatRoomContent() {
   const userName = userMessage?.senderName || "User"
 
   return (
-    <div className="space-y-6 max-h-[100%]">
-      <div className="flex items-center space-x-4">
+    <div className="space-y-6 max-h-[100%] p-[40px]">
+      <div className="flex justify-between items-center space-x-4">
+        <div>
+          <h1 className="text-2xl font-bold">Chat with {userName}</h1>
+          <p className="text-muted-foreground">Admin Chat Interface</p>
+        </div>
         <Button variant="outline" size="sm" asChild>
           <Link href="/admin/chat">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Chats
           </Link>
         </Button>
-        <div>
-          <h1 className="text-2xl font-bold">Chat with {userName}</h1>
-          <p className="text-muted-foreground">Admin Chat Interface</p>
-        </div>
       </div>
 
-      <Card className="h-[calc(100vh-170px)] flex flex-col">
+      <Card className="h-[calc(100vh-200px)] flex flex-col">
         <CardHeader>
           <CardTitle className="text-lg">Conversation</CardTitle>
         </CardHeader>
