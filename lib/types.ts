@@ -14,6 +14,7 @@ export interface BlogPost {
   category: string
   trending: boolean
   featured: boolean
+  likedBy?: string[]
   createdAt?: Date
   updatedAt?: Date
 }

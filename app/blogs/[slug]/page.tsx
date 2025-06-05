@@ -1,15 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calendar, Clock, User, ArrowLeft } from "lucide-react"
+import { Calendar, Clock, User, ArrowLeft, Eye, ThumbsUp } from "lucide-react"
 import { Header } from "@/components/header"
 import { notFound } from "next/navigation"
 import { useBlogPost, useBlogPosts } from "@/hooks/useFirebaseData"
 import { LoadingSection } from "@/components/loading-spinner"
+import { useAuth } from "@/contexts/auth-context"
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -17,8 +18,48 @@ interface BlogPostPageProps {
 
 export default function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = React.use(params);
-  const { post: post, loading: loadingPost } = useBlogPost(slug);
+  const { post: fetchedPost, loading: loadingPost } = useBlogPost(slug);
   const { posts: posts, loading: loadingPosts } = useBlogPosts();
+  const { user } = useAuth();
+
+  const [post, setPost] = useState(fetchedPost);
+  const [liked, setLiked] = useState(false);
+
+  useEffect(() => {
+    setPost(fetchedPost);
+    if (fetchedPost && user) {
+      const likedBy = (fetchedPost as any).likedBy as string[] | undefined;
+      setLiked(Array.isArray(likedBy) && likedBy.includes(user.uid));
+    }
+  }, [fetchedPost, user]);
+
+  useEffect(() => {
+    if (slug) {
+      fetch(`/api/blogs/${slug}/views`, { method: "POST" }).then(() => {
+        setPost((prev) =>
+          prev ? { ...prev, views: String(Number(prev.views) + 1) } : prev,
+        );
+      });
+    }
+  }, [slug]);
+
+  const handleLike = async () => {
+    if (!user || !post) return;
+    const res = await fetch(`/api/blogs/${slug}/likes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user.uid }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (typeof data.likes === "number") {
+        setPost({ ...post, likes: String(data.likes) });
+      }
+      if (typeof data.liked === "boolean") {
+        setLiked(data.liked);
+      }
+    }
+  };
 
   if (!post && (!loadingPost || !loadingPosts)) {
     notFound()
@@ -48,7 +89,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           {/* Article Header */}
           <div className="mb-12">
             <h1 className="text-4xl font-bold mb-6">{post?.title}</h1>
-            <div className="flex items-center space-x-6 text-sm text-muted-foreground mb-8">
+            <div className="flex items-center space-x-6 text-sm text-muted-foreground mb-2">
               <span className="flex items-center space-x-2">
                 <User className="w-4 h-4" />
                 <span>{post?.author}</span>
@@ -61,6 +102,20 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 <Clock className="w-4 h-4" />
                 <span>{post?.readTime}</span>
               </span>
+            </div>
+            <div className="flex items-center space-x-6 text-sm text-muted-foreground mb-8">
+              <span className="flex items-center space-x-2">
+                <Eye className="w-4 h-4" />
+                <span>{post?.views}</span>
+              </span>
+              <button
+                type="button"
+                onClick={handleLike}
+                className="flex items-center space-x-2 hover:text-teal-400"
+              >
+                <ThumbsUp className="w-4 h-4" fill={liked ? 'currentColor' : 'none'} />
+                <span>{post?.likes}</span>
+              </button>
             </div>
             <Image
               src={post?.image || "/placeholder.svg"}

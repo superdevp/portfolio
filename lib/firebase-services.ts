@@ -1,4 +1,17 @@
-import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where } from "firebase/firestore"
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  increment,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore"
 import { db } from "./firebase"
 import type { BlogPost, PersonalInfo, Project, Skill, Experience } from "./types"
 
@@ -120,6 +133,53 @@ export const blogPostsService = {
     } catch (error) {
       console.error("Error deleting blog post:", error)
       return false
+    }
+  },
+
+  // Increment views count for a post
+  async incrementViews(slug: string): Promise<number | null> {
+    try {
+      const q = query(collection(db, COLLECTIONS.BLOG_POSTS), where("slug", "==", slug))
+      const snap = await getDocs(q)
+      if (snap.empty) return null
+      const postRef = snap.docs[0].ref
+      await updateDoc(postRef, { views: increment(1) })
+      const updated = await getDoc(postRef)
+      return (updated.data()?.views as number) ?? null
+    } catch (error) {
+      console.error("Error incrementing views:", error)
+      return null
+    }
+  },
+
+  // Toggle like for a post by user
+  async toggleLike(slug: string, userId: string): Promise<{ likes: number; liked: boolean } | null> {
+    try {
+      const q = query(collection(db, COLLECTIONS.BLOG_POSTS), where("slug", "==", slug))
+      const snap = await getDocs(q)
+      if (snap.empty) return null
+      const postDoc = snap.docs[0]
+      const postRef = postDoc.ref
+      const likedBy = (postDoc.data().likedBy as string[] | undefined) || []
+      let liked: boolean
+      if (likedBy.includes(userId)) {
+        await updateDoc(postRef, {
+          likes: increment(-1),
+          likedBy: arrayRemove(userId),
+        })
+        liked = false
+      } else {
+        await updateDoc(postRef, {
+          likes: increment(1),
+          likedBy: arrayUnion(userId),
+        })
+        liked = true
+      }
+      const updated = await getDoc(postRef)
+      return { likes: (updated.data()?.likes as number) || 0, liked }
+    } catch (error) {
+      console.error("Error toggling like:", error)
+      return null
     }
   },
 }
