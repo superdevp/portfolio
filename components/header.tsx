@@ -2,19 +2,17 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Github, Search, Home, FileText, MessageCircle, Code } from "lucide-react"
+import { Github, Search, Home, FileText, MessageCircle, Phone, Code } from "lucide-react"
 import { SearchModal } from "./search-modal"
 import { ThemeToggle } from "./theme-toggle"
 import { useState } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
-import { usePersonalInfo } from "@/hooks/useFirebaseData"
 
 export function Header() {
   const pathname = usePathname()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const { user, isAdmin, isUser, signOut } = useAuth()
-  const { info: personalInfo } = usePersonalInfo()
 
   const isActive = (path: string) => {
     return pathname === path
@@ -109,15 +107,8 @@ export function Header() {
               className="w-4 h-4 cursor-pointer hover:text-teal-400 transition-colors text-muted-foreground"
               onClick={() => setIsSearchOpen(true)}
             />
-            {personalInfo?.socialLinks.github && (
-              <a
-                href={personalInfo.socialLinks.github}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Github className="w-4 h-4 cursor-pointer hover:text-teal-400 transition-colors text-muted-foreground" />
-              </a>
-            )}
+            <Github className="w-4 h-4 cursor-pointer hover:text-teal-400 transition-colors text-muted-foreground" />
+            <Phone className="w-4 h-4 cursor-pointer hover:text-teal-400 transition-colors text-muted-foreground" />
             <ThemeToggle />
           </div>
         </nav>
