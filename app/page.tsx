@@ -199,7 +199,7 @@ function HomePageContent() {
                   <CardContent className="p-0">
                     <div className="relative overflow-hidden">
                       <Image
-                        src={project.image || "/placeholder.svg"}
+                        src={project.imageUrl || "/placeholder.svg"}
                         alt={project.title}
                         width={300}
                         height={200}

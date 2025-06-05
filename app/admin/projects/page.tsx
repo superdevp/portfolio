@@ -128,7 +128,7 @@ export default function AdminProjectsPage() {
                   <CardContent className="p-0">
                     <div className="relative">
                       <img
-                        src={project.image || "/placeholder.svg"}
+                        src={project.imageUrl || "/placeholder.svg"}
                         alt={project.title}
                         className="w-full h-48 object-cover rounded-t-lg"
                       />

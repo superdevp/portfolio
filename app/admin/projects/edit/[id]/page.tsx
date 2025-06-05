@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
@@ -16,12 +16,13 @@ import { useToast } from "@/hooks/use-toast"
 import type { Project } from "@/lib/types"
 
 interface ProjectEditPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function ProjectEditPage({ params }: ProjectEditPageProps) {
+  const { id } = React.use(params);
   const router = useRouter()
   const { toast } = useToast()
   const [project, setProject] = useState<Project | null>(null)
@@ -45,7 +46,7 @@ export default function ProjectEditPage({ params }: ProjectEditPageProps) {
         setLoading(true)
         // Get project by ID from Firebase
         const projects = await projectsService.getAll()
-        const foundProject = projects.find((p) => p.id === params.id)
+        const foundProject = projects.find((p) => p.id === id)
 
         if (foundProject) {
           setProject(foundProject)
@@ -83,7 +84,7 @@ export default function ProjectEditPage({ params }: ProjectEditPageProps) {
     }
 
     fetchProject()
-  }, [params.id, router, toast])
+  }, [id, router, toast])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -99,7 +100,7 @@ export default function ProjectEditPage({ params }: ProjectEditPageProps) {
         order: Number(formData.order),
       }
 
-      const success = await projectsService.update(params.id, updatedProject)
+      const success = await projectsService.update(id, updatedProject)
 
       if (success) {
         toast({
@@ -241,7 +242,7 @@ export default function ProjectEditPage({ params }: ProjectEditPageProps) {
               <Label htmlFor="imageUrl">Project Image URL</Label>
               <Input
                 id="imageUrl"
-                type="url"
+                type="text"
                 value={formData.imageUrl}
                 onChange={(e) => handleInputChange("imageUrl", e.target.value)}
                 placeholder="https://example.com/project-image.jpg"

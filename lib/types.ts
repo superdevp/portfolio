@@ -57,6 +57,8 @@ export interface Project {
   order: number
   category?: string
   createdAt?: Date
+  longDescription?: string
+  imageUrl?: string
 }
 
 export interface Skill {

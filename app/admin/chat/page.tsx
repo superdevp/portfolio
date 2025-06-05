@@ -34,7 +34,7 @@ function AdminChatContent() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-[40px]">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Chat Management</h1>
