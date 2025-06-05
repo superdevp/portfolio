@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Calendar, Clock, User, ArrowLeft } from "lucide-react"
+import { FollowButton } from "@/components/follow-button"
 import { Header } from "@/components/header"
 import { notFound } from "next/navigation"
 import { useBlogPost, useBlogPosts } from "@/hooks/useFirebaseData"
@@ -44,6 +45,9 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Blogs</span>
           </Link>
+          <div className="mb-8 text-right">
+            <FollowButton />
+          </div>
 
           {/* Article Header */}
           <div className="mb-12">
