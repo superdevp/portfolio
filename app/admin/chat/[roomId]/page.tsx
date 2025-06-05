@@ -81,7 +81,7 @@ function AdminChatRoomContent() {
   const userName = userMessage?.senderName || "User"
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-h-[100%]">
       <div className="flex items-center space-x-4">
         <Button variant="outline" size="sm" asChild>
           <Link href="/admin/chat">
@@ -95,12 +95,12 @@ function AdminChatRoomContent() {
         </div>
       </div>
 
-      <Card className="h-[70vh] flex flex-col">
+      <Card className="h-[calc(100vh-170px)] flex flex-col">
         <CardHeader>
           <CardTitle className="text-lg">Conversation</CardTitle>
         </CardHeader>
 
-        <CardContent className="flex-1 flex flex-col space-y-4">
+        <CardContent className="flex-1 flex flex-col space-y-4 h-full">
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto space-y-4 p-4 bg-muted/20 rounded-lg">
             {messages.length === 0 ? (

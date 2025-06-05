@@ -1,3 +1,6 @@
+'use client';
+
+import React from 'react';
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
@@ -5,18 +8,30 @@ import { Button } from "@/components/ui/button"
 import { Calendar, Clock, User, ArrowLeft } from "lucide-react"
 import { Header } from "@/components/header"
 import { notFound } from "next/navigation"
-import { blogPosts } from "@/lib/mock-data"
+// import { blogPosts } from "@/lib/mock-data"
+import { useBlogPost, useBlogPosts } from "@/hooks/useFirebaseData"
+import { LoadingSection } from "@/components/loading-spinner"
 
 interface BlogPostPageProps {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string }>;
 }
 
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const { slug } = await params
-  const post = blogPosts[slug as keyof typeof blogPosts]
+export default function BlogPostPage({ params }: BlogPostPageProps) {
+  const { slug } = React.use(params);
+  const { post: post, loading: loadingPost } = useBlogPost(slug);
+  const { posts: posts, loading: loadingPosts } = useBlogPosts();
 
-  if (!post) {
+  if (!post && (!loadingPost || !loadingPosts)) {
     notFound()
+  }
+
+  if (loadingPost || loadingPosts) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <Header />
+        <LoadingSection>Loading blog posts...</LoadingSection>
+      </div>
+    )
   }
 
   return (
@@ -33,24 +48,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           {/* Article Header */}
           <div className="mb-12">
-            <h1 className="text-4xl font-bold mb-6">{post.title}</h1>
+            <h1 className="text-4xl font-bold mb-6">{post?.title}</h1>
             <div className="flex items-center space-x-6 text-sm text-muted-foreground mb-8">
               <span className="flex items-center space-x-2">
                 <User className="w-4 h-4" />
-                <span>{post.author}</span>
+                <span>{post?.author}</span>
               </span>
               <span className="flex items-center space-x-2">
                 <Calendar className="w-4 h-4" />
-                <span>{post.date}</span>
+                <span>{post?.date}</span>
               </span>
               <span className="flex items-center space-x-2">
                 <Clock className="w-4 h-4" />
-                <span>{post.readTime}</span>
+                <span>{post?.readTime}</span>
               </span>
             </div>
             <Image
-              src={post.image || "/placeholder.svg"}
-              alt={post.title}
+              src={post?.image || "/placeholder.svg"}
+              alt={post?.title || 'Blog Post'}
               width={800}
               height={400}
               className="w-full rounded-lg"
@@ -62,7 +77,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <CardContent className="p-8">
               <div
                 className="prose prose-invert prose-teal max-w-none"
-                dangerouslySetInnerHTML={{ __html: post.content }}
+                dangerouslySetInnerHTML={{ __html: post?.content || "Blog Content" }}
                 style={{
                   color: "var(--foreground)",
                 }}
@@ -74,8 +89,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <div className="mt-16">
             <h3 className="text-2xl font-bold mb-8">Related Posts</h3>
             <div className="grid md:grid-cols-2 gap-6">
-              {Object.entries(blogPosts)
-                .filter(([key]) => key !== slug)
+              {Object.entries(posts)
+                .filter(([_, post]) => post.slug !== slug)
                 .slice(0, 2)
                 .map(([key, relatedPost]) => (
                   <Card key={key} className="bg-card border-border hover:border-teal-400 transition-colors">
@@ -92,7 +107,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                         <span>{relatedPost.date}</span>
                         <span>{relatedPost.readTime}</span>
                       </div>
-                      <Link href={`/blogs/${key}`}>
+                      <Link href={`/blogs/${relatedPost.slug}`}>
                         <Button
                           variant="outline"
                           size="sm"
