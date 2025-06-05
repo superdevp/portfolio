@@ -33,6 +33,8 @@ export interface ChatRoom {
   lastMessageTime: any
   unreadCount: number
   isActive: boolean
+  userOnline?: boolean
+  adminOnline?: boolean
   typing?: string
 }
 
@@ -105,6 +107,8 @@ export const chatService = {
         lastMessageTime: serverTimestamp(),
         unreadCount: 0,
         isActive: true,
+        userOnline: true,
+        adminOnline: false,
         createdAt: serverTimestamp(),
       })
 
@@ -193,6 +197,58 @@ export const chatService = {
     return onSnapshot(roomDoc, (snapshot) => {
       const data = snapshot.data()
       callback((data?.typing as string) || null)
+    })
+  },
+
+  // Update online status for user
+  async updateUserOnlineStatus(
+    roomId: string,
+    online: boolean,
+  ): Promise<void> {
+    try {
+      await updateDoc(doc(db, "chatRooms", roomId), {
+        userOnline: online,
+      })
+    } catch (error) {
+      console.error("Error updating user online status:", error)
+    }
+  },
+
+  // Update online status for admin
+  async updateAdminOnlineStatus(
+    roomId: string,
+    online: boolean,
+  ): Promise<void> {
+    try {
+      await updateDoc(doc(db, "chatRooms", roomId), {
+        adminOnline: online,
+      })
+    } catch (error) {
+      console.error("Error updating admin online status:", error)
+    }
+  },
+
+  // Listen to admin online status
+  onAdminOnlineStatusSnapshot(
+    roomId: string,
+    callback: (online: boolean) => void,
+  ): () => void {
+    const roomDoc = doc(db, "chatRooms", roomId)
+    return onSnapshot(roomDoc, (snapshot) => {
+      const data = snapshot.data()
+      callback(Boolean(data?.adminOnline))
+    })
+  },
+
+  // Listen to user online status
+  onUserOnlineStatusSnapshot(
+    roomId: string,
+    callback: (online: boolean) => void,
+  ): () => void {
+    const roomDoc = doc(db, "chatRooms", roomId)
+    return onSnapshot(roomDoc, (snapshot) => {
+      const data = snapshot.data()
+      callback(Boolean(data?.userOnline))
     })
   },
 }
