@@ -11,7 +11,10 @@ export const metadata: Metadata = {
   title: "Ethan Yu - Full-Stack Developer",
   description:
     "Portfolio website of Ethan Yu, a passionate full-stack developer specializing in React, Node.js, and modern web technologies.",
-    generator: 'v0.dev'
+  generator: "v0.dev",
+  icons: {
+    icon: "/icon.svg",
+  },
 }
 
 export default function RootLayout({
