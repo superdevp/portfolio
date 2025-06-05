@@ -195,15 +195,16 @@ function ChatPageContent() {
                     </div>
                 ))
               )}
-              {typingUser && typingUser !== currentUserName && (
-                <p className="text-xs text-muted-foreground">{typingUser} is typing...</p>
-              )}
               <div ref={messagesEndRef} />
             </div>
-
             </CardContent>
+              {typingUser && typingUser !== currentUserName && (
+                <p className="text-xs text-muted-foreground px-5">{typingUser} is typing...</p>
+              )}
           </Card>
-              {/* Message Input */}
+              <div>
+                {/* Message Input */}
+              
               <form onSubmit={handleSendMessage} className="flex space-x-2">
                 <Input
                   value={newMessage}
@@ -217,6 +218,7 @@ function ChatPageContent() {
                   {sending ? <LoadingSpinner size="sm" /> : <Send className="w-4 h-4" />}
                 </Button>
               </form>
+              </div>
         </div>
       </div>
       </>

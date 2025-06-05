@@ -153,26 +153,28 @@ function AdminChatRoomContent() {
                 </div>
               ))
             )}
-            {typingUser && typingUser !== currentUserName && (
-              <p className="text-xs text-muted-foreground">{typingUser} is typing...</p>
-            )}
             <div ref={messagesEndRef} />
           </div>
 
           {/* Message Input */}
-          <form onSubmit={handleSendMessage} className="flex space-x-2">
-              <Input
-                value={newMessage}
-                onChange={handleInputChange}
-                placeholder="Type your reply..."
-                disabled={sending}
-                className="flex-1"
-                autoFocus
-              />
-            <Button type="submit" disabled={sending || !newMessage.trim()}>
-              {sending ? <LoadingSpinner size="sm" /> : <Send className="w-4 h-4" />}
-            </Button>
-          </form>
+          <div>
+            {typingUser && typingUser !== currentUserName && (
+              <p className="text-xs text-muted-foreground px-5">{typingUser} is typing...</p>
+            )}
+            <form onSubmit={handleSendMessage} className="flex space-x-2">
+                <Input
+                  value={newMessage}
+                  onChange={handleInputChange}
+                  placeholder="Type your reply..."
+                  disabled={sending}
+                  className="flex-1"
+                  autoFocus
+                />
+              <Button type="submit" disabled={sending || !newMessage.trim()}>
+                {sending ? <LoadingSpinner size="sm" /> : <Send className="w-4 h-4" />}
+              </Button>
+            </form>
+          </div>
         </CardContent>
       </Card>
     </div>
