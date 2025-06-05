@@ -339,10 +339,12 @@ function HomePageContent() {
                 something amazing.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <Button className="bg-teal-400 text-gray-900 hover:bg-teal-500 text-lg px-8 py-3">
-                  Get In Touch
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
+                <Link href="/chat">
+                  <Button className="bg-teal-400 text-gray-900 hover:bg-teal-500 text-lg px-8 py-3">
+                    Get In Touch
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
                 <Link href="/about">
                   <Button
                     variant="outline"

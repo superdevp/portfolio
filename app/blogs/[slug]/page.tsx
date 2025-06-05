@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Calendar, Clock, User, ArrowLeft } from "lucide-react"
 import { Header } from "@/components/header"
 import { notFound } from "next/navigation"
-// import { blogPosts } from "@/lib/mock-data"
 import { useBlogPost, useBlogPosts } from "@/hooks/useFirebaseData"
 import { LoadingSection } from "@/components/loading-spinner"
 
