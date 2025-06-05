@@ -1,15 +1,57 @@
-import Image from "next/image"
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, User, Eye, Heart, MessageCircle, TrendingUp, Filter, Search } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Header } from "@/components/header"
-import { blogPosts, featuredPost, categories, blogStats } from "@/lib/mock-data"
+import { LoadingSection } from "@/components/loading-spinner"
+import { Calendar, Clock, Search, ArrowRight, TrendingUp, ThumbsUp, MessageSquare, Eye } from "lucide-react"
+import { useBlogPosts, useFeaturedPosts } from "@/hooks/useFirebaseData"
 
 export default function BlogsPage() {
-  // Convert the blogPosts object to an array for easier mapping
-  const blogPostsArray = Object.values(blogPosts)
+  const { posts: allPosts, loading: postsLoading } = useBlogPosts()
+  const { posts: featuredPosts, loading: featuredLoading } = useFeaturedPosts()
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeTab, setActiveTab] = useState("all")
+
+  // Extract categories from posts
+  const categories = Array.from(new Set(allPosts.map((post) => post.category).filter(Boolean)))
+
+  // Calculate blog stats
+  const blogStats = {
+    totalPosts: allPosts.length,
+    totalViews: allPosts.reduce((sum, post) => sum + Number.parseInt(post.views?.replace(/[^\d]/g, "") || "0"), 0),
+    totalLikes: allPosts.reduce((sum, post) => sum + Number.parseInt(post.likes || "0"), 0),
+    totalComments: allPosts.reduce((sum, post) => sum + Number.parseInt(post.comments || "0"), 0),
+  }
+
+  // Filter posts based on search query and active tab
+  const filteredPosts = allPosts.filter((post) => {
+    const matchesSearch =
+      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
+
+    if (activeTab === "all") return matchesSearch
+    if (activeTab === "trending") return matchesSearch && post.trending
+    return matchesSearch && post.category === activeTab
+  })
+
+  // Find featured post
+  const featuredPost = featuredPosts.length > 0 ? featuredPosts[0] : null
+
+  if (postsLoading || featuredLoading) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <Header />
+        <LoadingSection>Loading blog posts...</LoadingSection>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -19,209 +61,165 @@ export default function BlogsPage() {
       <section className="relative overflow-hidden py-20">
         <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 via-transparent to-cyan-500/10"></div>
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
+          <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-5xl lg:text-6xl font-bold mb-6">
               My <span className="text-teal-400">Blog</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Thoughts on technology, web development, and everything in between. Join me on my journey of continuous
-              learning and sharing knowledge with the developer community.
+            <p className="text-xl text-muted-foreground mb-8">
+              Thoughts, tutorials, and insights on web development, design, and technology
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button className="bg-teal-400 text-gray-900 hover:bg-teal-500 text-lg px-8 py-3">
-                <MessageCircle className="w-5 h-5 mr-2" />
-                Subscribe to Newsletter
-              </Button>
-              <Button
-                variant="outline"
-                className="border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-gray-900 text-lg px-8 py-3"
-              >
-                <Search className="w-5 h-5 mr-2" />
-                Search Posts
-              </Button>
+            <div className="relative max-w-xl mx-auto">
+              <Input
+                type="text"
+                placeholder="Search articles..."
+                className="pl-10 py-6 text-lg"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
             </div>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            {blogStats.map((stat, index) => {
-              const IconComponent = {
-                MessageCircle,
-                Eye,
-                User,
-                Calendar,
-              }[stat.icon as keyof typeof import("lucide-react")]
-
-              return (
-                <Card key={index} className="bg-card/50 border-border backdrop-blur-sm">
-                  <CardContent className="p-6 text-center">
-                    <div className="text-teal-400 mb-2 flex justify-center">
-                      {IconComponent && <IconComponent className="w-5 h-5" />}
-                    </div>
-                    <div className="text-2xl font-bold text-foreground mb-1">{stat.value}</div>
-                    <div className="text-muted-foreground text-sm">{stat.label}</div>
-                  </CardContent>
-                </Card>
-              )
-            })}
           </div>
         </div>
       </section>
 
-      {/* Categories & Filter */}
-      <section className="py-8 bg-muted/30">
+      {/* Stats Section */}
+      <section className="py-10 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category, index) => (
-                <Button
-                  key={index}
-                  variant={category.active ? "default" : "outline"}
-                  size="sm"
-                  className={
-                    category.active
-                      ? "bg-teal-400 text-gray-900 hover:bg-teal-500"
-                      : "border-border text-muted-foreground hover:border-teal-400 hover:text-teal-400"
-                  }
-                >
-                  {category.name} ({category.count})
-                </Button>
-              ))}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="text-3xl lg:text-4xl font-bold text-teal-400 mb-2">{blogStats.totalPosts}</div>
+              <div className="text-muted-foreground">Articles</div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-border text-muted-foreground hover:border-teal-400 hover:text-teal-400"
-            >
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
+            <div className="text-center">
+              <div className="text-3xl lg:text-4xl font-bold text-teal-400 mb-2">
+                {blogStats.totalViews.toLocaleString()}
+              </div>
+              <div className="text-muted-foreground">Views</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl lg:text-4xl font-bold text-teal-400 mb-2">{blogStats.totalLikes}</div>
+              <div className="text-muted-foreground">Likes</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl lg:text-4xl font-bold text-teal-400 mb-2">{blogStats.totalComments}</div>
+              <div className="text-muted-foreground">Comments</div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Featured Post */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center space-x-2 mb-8">
-            <TrendingUp className="w-6 h-6 text-teal-400" />
-            <h2 className="text-3xl font-bold">Featured Post</h2>
-          </div>
-
-          <Card className="bg-card border-border hover:border-teal-400 transition-all duration-300 overflow-hidden">
-            <CardContent className="p-0">
-              <div className="grid lg:grid-cols-2 gap-0">
-                <div className="relative h-64 lg:h-auto">
+      {featuredPost && (
+        <section className="py-20">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold mb-10">Featured Post</h2>
+            <Card className="bg-card border-border overflow-hidden">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="relative h-64 md:h-full">
                   <Image
-                    src={featuredPost.image || "/placeholder.svg"}
+                    src={featuredPost.image || "/placeholder.svg?height=400&width=600"}
                     alt={featuredPost.title}
                     fill
                     className="object-cover"
                   />
                   <div className="absolute top-4 left-4">
-                    <Badge className="bg-teal-400 text-gray-900 hover:bg-teal-500">Featured</Badge>
+                    <Badge className="bg-teal-400 text-gray-900 hover:bg-teal-500">{featuredPost.category}</Badge>
                   </div>
                 </div>
-                <div className="p-8 lg:p-12 flex flex-col justify-center">
-                  <div className="flex items-center space-x-2 mb-4">
-                    <Badge variant="outline" className="border-teal-400 text-teal-400">
-                      {featuredPost.category}
-                    </Badge>
-                    <span className="text-muted-foreground">•</span>
-                    <span className="text-muted-foreground text-sm">{featuredPost.date}</span>
+                <CardContent className="p-8 flex flex-col justify-center">
+                  <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-4">
+                    <span className="flex items-center space-x-1">
+                      <Calendar className="w-4 h-4" />
+                      <span>{featuredPost.date}</span>
+                    </span>
+                    <span className="flex items-center space-x-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{featuredPost.readTime}</span>
+                    </span>
                   </div>
-
-                  <h3 className="text-2xl lg:text-3xl font-bold text-foreground mb-4 leading-tight">
-                    {featuredPost.title}
-                  </h3>
-                  <p className="text-muted-foreground mb-6 text-lg leading-relaxed">{featuredPost.excerpt}</p>
-
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center space-x-6 text-sm text-muted-foreground">
-                      <span className="flex items-center space-x-1">
-                        <User className="w-4 h-4" />
-                        <span>{featuredPost.author}</span>
-                      </span>
-                      <span className="flex items-center space-x-1">
-                        <Clock className="w-4 h-4" />
-                        <span>{featuredPost.readTime}</span>
-                      </span>
+                  <h3 className="text-2xl font-bold mb-4 text-teal-400">{featuredPost.title}</h3>
+                  <p className="text-muted-foreground mb-6">{featuredPost.excerpt}</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                       <span className="flex items-center space-x-1">
                         <Eye className="w-4 h-4" />
                         <span>{featuredPost.views}</span>
                       </span>
+                      <span className="flex items-center space-x-1">
+                        <ThumbsUp className="w-4 h-4" />
+                        <span>{featuredPost.likes}</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <MessageSquare className="w-4 h-4" />
+                        <span>{featuredPost.comments}</span>
+                      </span>
                     </div>
+                    <Link href={`/blogs/${featuredPost.slug}`}>
+                      <Button className="bg-teal-400 text-gray-900 hover:bg-teal-500">
+                        Read More
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
                   </div>
-
-                  <Link href={`/blogs/${featuredPost.slug}`}>
-                    <Button className="bg-teal-400 text-gray-900 hover:bg-teal-500 w-full lg:w-auto">
-                      Read Full Article
-                    </Button>
-                  </Link>
-                </div>
+                </CardContent>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+            </Card>
+          </div>
+        </section>
+      )}
 
-      {/* Blog Posts Grid */}
-      <section className="py-16 bg-muted/30">
+      {/* Blog Posts */}
+      <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-12">
-            <h2 className="text-3xl font-bold">Latest Posts</h2>
-            <div className="flex items-center space-x-4">
-              <span className="text-muted-foreground">Sort by:</span>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-border text-muted-foreground hover:border-teal-400 hover:text-teal-400"
-              >
-                Latest
-              </Button>
-            </div>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-10">
+            <h2 className="text-3xl font-bold mb-4 md:mb-0">Latest Articles</h2>
+            <Tabs defaultValue="all" className="w-full md:w-auto" onValueChange={setActiveTab}>
+              <TabsList className="w-full md:w-auto">
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="trending" className="flex items-center">
+                  <TrendingUp className="w-4 h-4 mr-1" />
+                  Trending
+                </TabsTrigger>
+                {categories.map((category) => (
+                  <TabsTrigger key={category} value={category}>
+                    {category}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogPostsArray.map((post) => (
-              <Card
-                key={post.id}
-                className="bg-card border-border hover:border-teal-400 transition-all duration-300 group overflow-hidden"
-              >
-                <CardContent className="p-0">
-                  <div className="relative overflow-hidden">
-                    <Image
-                      src={post.image || "/placeholder.svg"}
-                      alt={post.title}
-                      width={300}
-                      height={200}
-                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute top-4 left-4 flex items-center space-x-2">
-                      <Badge variant="outline" className="border-teal-400 text-teal-400 bg-background/80">
-                        {post.category}
-                      </Badge>
+          {filteredPosts.length === 0 ? (
+            <div className="text-center py-20">
+              <h3 className="text-2xl font-semibold mb-4">No posts found</h3>
+              <p className="text-muted-foreground">Try a different search term or category</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredPosts.map((post) => (
+                <Card key={post.id} className="bg-card border-border hover:border-teal-400 transition-colors">
+                  <CardContent className="p-0">
+                    <div className="relative h-48">
+                      <Image
+                        src={post.image || "/placeholder.svg?height=200&width=400"}
+                        alt={post.title}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute top-4 left-4">
+                        <Badge className="bg-teal-400 text-gray-900 hover:bg-teal-500">{post.category}</Badge>
+                      </div>
                       {post.trending && (
-                        <Badge className="bg-orange-500 text-white">
-                          <TrendingUp className="w-3 h-3 mr-1" />
-                          Trending
-                        </Badge>
+                        <div className="absolute top-4 right-4">
+                          <Badge variant="outline" className="bg-card border-teal-400 text-teal-400">
+                            <TrendingUp className="w-3 h-3 mr-1" />
+                            Trending
+                          </Badge>
+                        </div>
                       )}
                     </div>
-                  </div>
-
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold text-foreground mb-3 line-clamp-2 group-hover:text-teal-400 transition-colors">
-                      {post.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-3">{post.excerpt}</p>
-
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-                      <div className="flex items-center space-x-4">
-                        <span className="flex items-center space-x-1">
-                          <User className="w-3 h-3" />
-                          <span>{post.author}</span>
-                        </span>
+                    <div className="p-6">
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
                         <span className="flex items-center space-x-1">
                           <Calendar className="w-3 h-3" />
                           <span>{post.date}</span>
@@ -231,74 +229,52 @@ export default function BlogsPage() {
                           <span>{post.readTime}</span>
                         </span>
                       </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                        <span className="flex items-center space-x-1">
-                          <Eye className="w-3 h-3" />
-                          <span>{post.views}</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <Heart className="w-3 h-3" />
-                          <span>{post.likes}</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <MessageCircle className="w-3 h-3" />
-                          <span>{post.comments}</span>
-                        </span>
+                      <h3 className="text-xl font-semibold mb-3">{post.title}</h3>
+                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{post.excerpt}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3 text-xs text-muted-foreground">
+                          <span className="flex items-center space-x-1">
+                            <Eye className="w-3 h-3" />
+                            <span>{post.views}</span>
+                          </span>
+                          <span className="flex items-center space-x-1">
+                            <ThumbsUp className="w-3 h-3" />
+                            <span>{post.likes}</span>
+                          </span>
+                          <span className="flex items-center space-x-1">
+                            <MessageSquare className="w-3 h-3" />
+                            <span>{post.comments}</span>
+                          </span>
+                        </div>
+                        <Link href={`/blogs/${post.slug}`}>
+                          <Button variant="ghost" size="sm" className="text-teal-400 hover:text-teal-300">
+                            Read More <ArrowRight className="w-3 h-3 ml-1" />
+                          </Button>
+                        </Link>
                       </div>
-                      <Link href={`/blogs/${post.slug}`}>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-teal-400 hover:text-teal-300 hover:bg-teal-400/10"
-                        >
-                          Read More
-                        </Button>
-                      </Link>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Load More */}
-          <div className="text-center mt-12">
-            <Button
-              variant="outline"
-              className="border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-gray-900 px-8 py-3"
-            >
-              Load More Posts
-            </Button>
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Newsletter Signup */}
-      <section className="py-20">
+      {/* Newsletter Section */}
+      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
-          <Card className="bg-gradient-to-r from-teal-500/20 to-cyan-500/20 border-teal-400 max-w-4xl mx-auto">
+          <Card className="bg-gradient-to-r from-teal-500/20 to-cyan-500/20 border-teal-400">
             <CardContent className="p-12 text-center">
-              <h2 className="text-4xl font-bold mb-4">Stay Updated</h2>
+              <h2 className="text-3xl font-bold mb-4">Subscribe to My Newsletter</h2>
               <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
-                Get the latest posts delivered right to your inbox. Join over 1,200 developers who stay up-to-date with
-                my latest thoughts on web development.
+                Get the latest articles, tutorials, and updates delivered straight to your inbox. No spam, unsubscribe
+                anytime.
               </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto mb-6">
-                <input
-                  type="email"
-                  placeholder="Enter your email address"
-                  className="flex-1 px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder-muted-foreground focus:border-teal-400 focus:outline-none"
-                />
-                <Button className="bg-teal-400 text-gray-900 hover:bg-teal-500 px-8 py-3">Subscribe</Button>
+              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                <Input type="email" placeholder="Your email address" className="py-6 text-lg" />
+                <Button className="bg-teal-400 text-gray-900 hover:bg-teal-500 text-lg px-8 py-3">Subscribe</Button>
               </div>
-
-              <p className="text-muted-foreground text-sm">
-                No spam, unsubscribe at any time. I respect your privacy and will never share your email.
-              </p>
             </CardContent>
           </Card>
         </div>

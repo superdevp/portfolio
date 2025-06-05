@@ -1,7 +1,10 @@
+"use client"
+
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
+import { LoadingSection } from "@/components/loading-spinner"
 import {
   Mail,
   MapPin,
@@ -21,91 +24,158 @@ import {
   BookOpen,
   Briefcase,
 } from "lucide-react"
+import { usePersonalInfo, useSkills, useExperience, useAchievements, useInterests } from "@/hooks/useFirebaseData"
+import type { JSX } from "react"
 
 export default function AboutPage() {
-  const skills = [
-    { category: "Frontend", items: ["React.js", "Next.js", "TypeScript", "Tailwind CSS", "Vue.js"], color: "blue" },
-    { category: "Backend", items: ["Node.js", "Express", "Python", "PostgreSQL", "MongoDB"], color: "green" },
-    { category: "Tools", items: ["Git", "Docker", "AWS", "Figma", "VS Code"], color: "purple" },
-    {
-      category: "Soft Skills",
-      items: ["Leadership", "Communication", "Problem Solving", "Team Work"],
-      color: "orange",
-    },
-  ]
+  const { info: personalInfo, loading: infoLoading } = usePersonalInfo()
+  const { skills, loading: skillsLoading } = useSkills()
+  const { experience, loading: experienceLoading } = useExperience()
+  const { achievements, loading: achievementsLoading } = useAchievements()
+  const { interests, loading: interestsLoading } = useInterests()
 
-  const experience = [
-    {
-      title: "Senior Full-Stack Developer",
-      company: "Tech Solutions Inc.",
-      period: "2022 - Present",
-      location: "San Francisco, CA",
-      description:
-        "Leading development of scalable web applications using React, Node.js, and cloud technologies. Mentoring junior developers and implementing best practices.",
-      achievements: [
-        "Led a team of 5 developers on a major e-commerce platform",
-        "Improved application performance by 40%",
-        "Implemented CI/CD pipelines reducing deployment time by 60%",
-      ],
-      current: true,
-    },
-    {
-      title: "Full-Stack Developer",
-      company: "Digital Agency",
-      period: "2020 - 2022",
-      location: "San Francisco, CA",
-      description:
-        "Developed and maintained multiple client projects, focusing on responsive design and performance optimization.",
-      achievements: [
-        "Delivered 15+ client projects on time and within budget",
-        "Reduced page load times by 50% through optimization",
-        "Mentored 3 junior developers",
-      ],
-      current: false,
-    },
-    {
-      title: "Frontend Developer",
-      company: "StartupCo",
-      period: "2019 - 2020",
-      location: "San Francisco, CA",
-      description: "Built user interfaces for web applications using React and modern CSS frameworks.",
-      achievements: [
-        "Developed responsive UI components library",
-        "Collaborated with UX team to improve user experience",
-        "Implemented accessibility standards (WCAG 2.1)",
-      ],
-      current: false,
-    },
-  ]
-
-  const achievements = [
-    { icon: <Award className="w-6 h-6" />, title: "AWS Certified Developer", year: "2023" },
-    { icon: <Code className="w-6 h-6" />, title: "React Expert Certification", year: "2022" },
-    { icon: <Users className="w-6 h-6" />, title: "Team Leadership Award", year: "2023" },
-    { icon: <Target className="w-6 h-6" />, title: "Project Excellence Award", year: "2022" },
-  ]
-
-  const interests = [
-    { icon: <Code className="w-8 h-8" />, title: "Open Source", description: "Contributing to open source projects" },
-    {
-      icon: <BookOpen className="w-8 h-8" />,
-      title: "Tech Writing",
-      description: "Writing technical blogs and tutorials",
-    },
-    {
-      icon: <Coffee className="w-8 h-8" />,
-      title: "Coffee Brewing",
-      description: "Exploring different brewing methods",
-    },
-    { icon: <Heart className="w-8 h-8" />, title: "Mentoring", description: "Helping junior developers grow" },
-  ]
-
+  // Default stats if not available in personalInfo
   const stats = [
-    { number: "50+", label: "Projects Completed", icon: <Briefcase className="w-6 h-6" /> },
-    { number: "5+", label: "Years Experience", icon: <Calendar className="w-6 h-6" /> },
-    { number: "30+", label: "Happy Clients", icon: <Users className="w-6 h-6" /> },
-    { number: "15+", label: "Technologies", icon: <Zap className="w-6 h-6" /> },
+    {
+      number: personalInfo?.stats?.projectsCompleted || "50+",
+      label: "Projects Completed",
+      icon: <Briefcase className="w-6 h-6" />,
+    },
+    {
+      number: personalInfo?.stats?.yearsExperience || "5+",
+      label: "Years Experience",
+      icon: <Calendar className="w-6 h-6" />,
+    },
+    { number: personalInfo?.stats?.happyClients || "30+", label: "Happy Clients", icon: <Users className="w-6 h-6" /> },
+    { number: personalInfo?.stats?.technologies || "15+", label: "Technologies", icon: <Zap className="w-6 h-6" /> },
   ]
+
+  // Fallback skills if not available from Firebase
+  const skillsData =
+    skills.length > 0
+      ? skills
+      : [
+          {
+            category: "Frontend",
+            items: ["React.js", "Next.js", "TypeScript", "Tailwind CSS", "Vue.js"],
+            color: "blue",
+          },
+          { category: "Backend", items: ["Node.js", "Express", "Python", "PostgreSQL", "MongoDB"], color: "green" },
+          { category: "Tools", items: ["Git", "Docker", "AWS", "Figma", "VS Code"], color: "purple" },
+          {
+            category: "Soft Skills",
+            items: ["Leadership", "Communication", "Problem Solving", "Team Work"],
+            color: "orange",
+          },
+        ]
+
+  // Fallback experience if not available from Firebase
+  const experienceData =
+    experience.length > 0
+      ? experience
+      : [
+          {
+            title: "Senior Full-Stack Developer",
+            company: "Tech Solutions Inc.",
+            period: "2022 - Present",
+            location: "San Francisco, CA",
+            description:
+              "Leading development of scalable web applications using React, Node.js, and cloud technologies. Mentoring junior developers and implementing best practices.",
+            achievements: [
+              "Led a team of 5 developers on a major e-commerce platform",
+              "Improved application performance by 40%",
+              "Implemented CI/CD pipelines reducing deployment time by 60%",
+            ],
+            current: true,
+          },
+          {
+            title: "Full-Stack Developer",
+            company: "Digital Agency",
+            period: "2020 - 2022",
+            location: "San Francisco, CA",
+            description:
+              "Developed and maintained multiple client projects, focusing on responsive design and performance optimization.",
+            achievements: [
+              "Delivered 15+ client projects on time and within budget",
+              "Reduced page load times by 50% through optimization",
+              "Mentored 3 junior developers",
+            ],
+            current: false,
+          },
+          {
+            title: "Frontend Developer",
+            company: "StartupCo",
+            period: "2019 - 2020",
+            location: "San Francisco, CA",
+            description: "Built user interfaces for web applications using React and modern CSS frameworks.",
+            achievements: [
+              "Developed responsive UI components library",
+              "Collaborated with UX team to improve user experience",
+              "Implemented accessibility standards (WCAG 2.1)",
+            ],
+            current: false,
+          },
+        ]
+
+  // Fallback achievements if not available from Firebase
+  const achievementsData =
+    achievements.length > 0
+      ? achievements
+      : [
+          { icon: <Award className="w-6 h-6" />, title: "AWS Certified Developer", year: "2023" },
+          { icon: <Code className="w-6 h-6" />, title: "React Expert Certification", year: "2022" },
+          { icon: <Users className="w-6 h-6" />, title: "Team Leadership Award", year: "2023" },
+          { icon: <Target className="w-6 h-6" />, title: "Project Excellence Award", year: "2022" },
+        ]
+
+  // Fallback interests if not available from Firebase
+  const interestsData =
+    interests.length > 0
+      ? interests
+      : [
+          {
+            icon: <Code className="w-8 h-8" />,
+            title: "Open Source",
+            description: "Contributing to open source projects",
+          },
+          {
+            icon: <BookOpen className="w-8 h-8" />,
+            title: "Tech Writing",
+            description: "Writing technical blogs and tutorials",
+          },
+          {
+            icon: <Coffee className="w-8 h-8" />,
+            title: "Coffee Brewing",
+            description: "Exploring different brewing methods",
+          },
+          { icon: <Heart className="w-8 h-8" />, title: "Mentoring", description: "Helping junior developers grow" },
+        ]
+
+  // Map icons for achievements and interests
+  const getIconComponent = (iconName: string): JSX.Element => {
+    const iconMap: Record<string, JSX.Element> = {
+      Award: <Award className="w-6 h-6" />,
+      Code: <Code className="w-6 h-6" />,
+      Users: <Users className="w-6 h-6" />,
+      Target: <Target className="w-6 h-6" />,
+      BookOpen: <BookOpen className="w-8 h-8" />,
+      Coffee: <Coffee className="w-8 h-8" />,
+      Heart: <Heart className="w-8 h-8" />,
+      Briefcase: <Briefcase className="w-8 h-8" />,
+      Calendar: <Calendar className="w-8 h-8" />,
+      Zap: <Zap className="w-8 h-8" />,
+    }
+    return iconMap[iconName] || <Code className="w-6 h-6" />
+  }
+
+  if (infoLoading || skillsLoading || experienceLoading || achievementsLoading || interestsLoading) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <Header />
+        <LoadingSection>Loading about page...</LoadingSection>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -122,12 +192,12 @@ export default function AboutPage() {
                   About <span className="text-teal-400">Me</span>
                 </h1>
                 <p className="text-xl text-muted-foreground mb-6">
-                  Passionate full-stack developer with 5+ years of experience creating exceptional digital experiences.
+                  {personalInfo?.title &&
+                    `Passionate ${personalInfo.title} with ${personalInfo?.stats?.yearsExperience || "5+"} years of experience creating exceptional digital experiences.`}
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
-                  I'm Ethan Yu, a dedicated full-stack developer based in San Francisco, CA. I specialize in building
-                  modern web applications that combine beautiful design with robust functionality. My journey in tech
-                  started with curiosity and has evolved into a passion for creating solutions that make a real impact.
+                  {personalInfo?.bio ||
+                    `I'm ${personalInfo?.name || "Ethan Yu"}, a dedicated full-stack developer based in ${personalInfo?.location || "San Francisco, CA"}. I specialize in building modern web applications that combine beautiful design with robust functionality. My journey in tech started with curiosity and has evolved into a passion for creating solutions that make a real impact.`}
                 </p>
               </div>
 
@@ -148,11 +218,11 @@ export default function AboutPage() {
               <div className="flex items-center space-x-6">
                 <div className="flex items-center space-x-2 text-muted-foreground">
                   <MapPin className="w-4 h-4" />
-                  <span>San Francisco, CA</span>
+                  <span>{personalInfo?.location || "San Francisco, CA"}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-muted-foreground">
                   <Mail className="w-4 h-4" />
-                  <span>ethan@example.com</span>
+                  <span>{personalInfo?.email || "ethan@example.com"}</span>
                 </div>
               </div>
             </div>
@@ -162,8 +232,8 @@ export default function AboutPage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-teal-400 to-cyan-400 rounded-2xl blur-3xl opacity-20"></div>
                 <div className="relative w-full h-full rounded-2xl overflow-hidden border-4 border-teal-400 shadow-2xl">
                   <Image
-                    src="/placeholder.svg?height=320&width=320"
-                    alt="Ethan Yu - Full-Stack Developer"
+                    src={personalInfo?.profileImage || "/placeholder.svg?height=320&width=320"}
+                    alt={`${personalInfo?.name || "Ethan Yu"} - ${personalInfo?.title || "Full-Stack Developer"}`}
                     width={320}
                     height={320}
                     className="w-full h-full object-cover"
@@ -171,13 +241,17 @@ export default function AboutPage() {
                 </div>
                 <div className="absolute -top-6 -right-6 bg-card rounded-xl p-4 border border-border shadow-lg">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-teal-400">5+</div>
+                    <div className="text-2xl font-bold text-teal-400">
+                      {personalInfo?.stats?.yearsExperience || "5+"}
+                    </div>
                     <div className="text-xs text-muted-foreground">Years Exp.</div>
                   </div>
                 </div>
                 <div className="absolute -bottom-6 -left-6 bg-card rounded-xl p-4 border border-border shadow-lg">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-teal-400">50+</div>
+                    <div className="text-2xl font-bold text-teal-400">
+                      {personalInfo?.stats?.projectsCompleted || "50+"}
+                    </div>
                     <div className="text-xs text-muted-foreground">Projects</div>
                   </div>
                 </div>
@@ -218,7 +292,7 @@ export default function AboutPage() {
               <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-teal-400/30"></div>
 
               <div className="space-y-12">
-                {experience.map((exp, index) => (
+                {experienceData.map((exp, index) => (
                   <div key={index} className="relative flex items-start space-x-8">
                     {/* Timeline dot */}
                     <div
@@ -279,7 +353,7 @@ export default function AboutPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            {skills.map((skillGroup, index) => (
+            {skillsData.map((skillGroup, index) => (
               <Card key={index} className="bg-card border-border hover:border-teal-400 transition-colors">
                 <CardContent className="p-6">
                   <h3 className="text-xl font-bold mb-4 text-teal-400">{skillGroup.category}</h3>
@@ -307,13 +381,15 @@ export default function AboutPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            {achievements.map((achievement, index) => (
+            {achievementsData.map((achievement, index) => (
               <Card
                 key={index}
                 className="bg-card border-border hover:border-teal-400 transition-all duration-300 hover:transform hover:scale-105"
               >
                 <CardContent className="p-6 text-center">
-                  <div className="text-teal-400 mb-4 flex justify-center">{achievement.icon}</div>
+                  <div className="text-teal-400 mb-4 flex justify-center">
+                    {achievement.icon || getIconComponent(achievement.iconName || "Award")}
+                  </div>
                   <h3 className="font-semibold mb-2 text-foreground">{achievement.title}</h3>
                   <p className="text-muted-foreground text-sm">{achievement.year}</p>
                 </CardContent>
@@ -332,13 +408,15 @@ export default function AboutPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            {interests.map((interest, index) => (
+            {interestsData.map((interest, index) => (
               <Card
                 key={index}
                 className="bg-card border-border hover:border-teal-400 transition-all duration-300 hover:transform hover:scale-105"
               >
                 <CardContent className="p-6 text-center">
-                  <div className="text-teal-400 mb-4 flex justify-center">{interest.icon}</div>
+                  <div className="text-teal-400 mb-4 flex justify-center">
+                    {interest.icon || getIconComponent(interest.iconName || "Code")}
+                  </div>
                   <h3 className="font-semibold mb-2 text-foreground">{interest.title}</h3>
                   <p className="text-muted-foreground text-sm">{interest.description}</p>
                 </CardContent>
@@ -374,10 +452,26 @@ export default function AboutPage() {
               </div>
 
               <div className="flex justify-center space-x-6">
-                <Github className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />
-                <Linkedin className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />
-                <Twitter className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />
-                <Mail className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />
+                {personalInfo?.socialLinks?.github && (
+                  <a href={personalInfo.socialLinks.github} target="_blank" rel="noopener noreferrer">
+                    <Github className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />
+                  </a>
+                )}
+                {personalInfo?.socialLinks?.linkedin && (
+                  <a href={personalInfo.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
+                    <Linkedin className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />
+                  </a>
+                )}
+                {personalInfo?.socialLinks?.twitter && (
+                  <a href={personalInfo.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
+                    <Twitter className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />
+                  </a>
+                )}
+                {personalInfo?.email && (
+                  <a href={`mailto:${personalInfo.email}`}>
+                    <Mail className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />
+                  </a>
+                )}
               </div>
             </CardContent>
           </Card>

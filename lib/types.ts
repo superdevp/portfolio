@@ -77,6 +77,7 @@ export interface Experience {
   description: string
   achievements: string[]
   order?: number
+  period?: string
 }
 
 export interface Achievement {
