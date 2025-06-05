@@ -24,6 +24,7 @@ function ChatPageContent() {
   const [roomId, setRoomId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [typingUser, setTypingUser] = useState<string | null>(null)
+  const [adminOnline, setAdminOnline] = useState(false)
   const typingTimeout = useRef<NodeJS.Timeout | null>(null)
   const currentUserName =
     user?.displayName || user?.email?.split("@")[0] || "User"
@@ -48,6 +49,13 @@ function ChatPageContent() {
         )
         setRoomId(chatRoomId)
 
+        chatService.updateUserOnlineStatus(chatRoomId, true)
+
+        const unsubscribeAdminOnline =
+          chatService.onAdminOnlineStatusSnapshot(chatRoomId, (online) =>
+            setAdminOnline(online),
+          )
+
         // Listen to messages
         const unsubscribeMessages = chatService.onMessagesSnapshot(
           chatRoomId,
@@ -68,6 +76,7 @@ function ChatPageContent() {
         return () => {
           unsubscribeMessages()
           unsubscribeTyping()
+          unsubscribeAdminOnline()
         }
       } catch (error) {
         console.error("Error initializing chat:", error)
@@ -82,6 +91,46 @@ function ChatPageContent() {
       }
     }
   }, [user])
+
+  // Update online status on unload
+  useEffect(() => {
+    if (!roomId) return
+    const handleUnload = () => {
+      chatService.updateUserOnlineStatus(roomId, false)
+    }
+    window.addEventListener("beforeunload", handleUnload)
+    return () => {
+      chatService.updateUserOnlineStatus(roomId, false)
+      window.removeEventListener("beforeunload", handleUnload)
+    }
+  }, [roomId])
+
+  // Update online status based on window focus/visibility
+  useEffect(() => {
+    if (!roomId) return
+    const setOnline = () => {
+      chatService.updateUserOnlineStatus(roomId, true)
+    }
+    const setOffline = () => {
+      chatService.updateUserOnlineStatus(roomId, false)
+    }
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        setOnline()
+      } else {
+        setOffline()
+      }
+    }
+    window.addEventListener("focus", setOnline)
+    window.addEventListener("blur", setOffline)
+    document.addEventListener("visibilitychange", handleVisibility)
+
+    return () => {
+      window.removeEventListener("focus", setOnline)
+      window.removeEventListener("blur", setOffline)
+      document.removeEventListener("visibilitychange", handleVisibility)
+    }
+  }, [roomId])
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -118,6 +167,9 @@ function ChatPageContent() {
 
   const handleSignOut = async () => {
     try {
+      if (roomId) {
+        await chatService.updateUserOnlineStatus(roomId, false)
+      }
       await signOut()
     } catch (error) {
       console.error("Error signing out:", error)
@@ -144,6 +196,14 @@ function ChatPageContent() {
                 <p className="text-sm text-muted-foreground">
                   Welcome, {user?.displayName || user?.email?.split("@")[0]}!
                 </p>
+                <div className="flex items-center space-x-2 mt-1">
+                  <span
+                    className={`h-2 w-2 rounded-full ${adminOnline ? "bg-green-500" : "bg-red-500"}`}
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    {adminOnline ? "Online" : "Offline"}
+                  </span>
+                </div>
               </div>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />

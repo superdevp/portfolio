@@ -26,6 +26,7 @@ function AdminChatRoomContent() {
   const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [typingUser, setTypingUser] = useState<string | null>(null)
+  const [userOnline, setUserOnline] = useState(false)
   const typingTimeout = useRef<NodeJS.Timeout | null>(null)
   const currentUserName = "Ethan (Admin)"
 
@@ -48,9 +49,49 @@ function AdminChatRoomContent() {
 
     const unsubscribeTyping = chatService.onTypingStatusSnapshot(roomId, (name) => setTypingUser(name))
 
+    chatService.updateAdminOnlineStatus(roomId, true)
+    const unsubscribeUserOnline = chatService.onUserOnlineStatusSnapshot(
+      roomId,
+      (online) => setUserOnline(online),
+    )
+    const handleUnload = () => {
+      chatService.updateAdminOnlineStatus(roomId, false)
+    }
+    window.addEventListener("beforeunload", handleUnload)
+
     return () => {
       unsubscribeMessages()
       unsubscribeTyping()
+      unsubscribeUserOnline()
+      chatService.updateAdminOnlineStatus(roomId, false)
+      window.removeEventListener("beforeunload", handleUnload)
+    }
+  }, [roomId])
+
+  // Update admin online status based on window focus/visibility
+  useEffect(() => {
+    if (!roomId) return
+    const setOnline = () => {
+      chatService.updateAdminOnlineStatus(roomId, true)
+    }
+    const setOffline = () => {
+      chatService.updateAdminOnlineStatus(roomId, false)
+    }
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        setOnline()
+      } else {
+        setOffline()
+      }
+    }
+    window.addEventListener("focus", setOnline)
+    window.addEventListener("blur", setOffline)
+    document.addEventListener("visibilitychange", handleVisibility)
+
+    return () => {
+      window.removeEventListener("focus", setOnline)
+      window.removeEventListener("blur", setOffline)
+      document.removeEventListener("visibilitychange", handleVisibility)
     }
   }, [roomId])
 
@@ -105,6 +146,14 @@ function AdminChatRoomContent() {
         <div>
           <h1 className="text-2xl font-bold">Chat with {userName}</h1>
           <p className="text-muted-foreground">Admin Chat Interface</p>
+          <div className="flex items-center space-x-2 mt-1">
+            <span
+              className={`h-2 w-2 rounded-full ${userOnline ? "bg-green-500" : "bg-red-500"}`}
+            />
+            <span className="text-xs text-muted-foreground">
+              {userOnline ? "Online" : "Offline"}
+            </span>
+          </div>
         </div>
         <Button variant="outline" size="sm" asChild>
           <Link href="/admin/chat">
