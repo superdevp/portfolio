@@ -92,15 +92,32 @@ function ChatPageContent() {
     }
   }, [user])
 
-  // Update online status on unload
+  // Update online status based on tab focus
   useEffect(() => {
     if (!roomId) return
-    const handleUnload = () => {
-      chatService.updateUserOnlineStatus(roomId, false)
+
+    const updateStatus = (online: boolean) =>
+      chatService.updateUserOnlineStatus(roomId, online)
+
+    const handleVisibility = () => {
+      updateStatus(document.visibilityState === "visible")
     }
+
+    const handleFocus = () => updateStatus(true)
+    const handleBlur = () => updateStatus(false)
+    const handleUnload = () => updateStatus(false)
+
+    updateStatus(document.visibilityState === "visible")
+    window.addEventListener("focus", handleFocus)
+    window.addEventListener("blur", handleBlur)
+    document.addEventListener("visibilitychange", handleVisibility)
     window.addEventListener("beforeunload", handleUnload)
+
     return () => {
-      chatService.updateUserOnlineStatus(roomId, false)
+      updateStatus(false)
+      window.removeEventListener("focus", handleFocus)
+      window.removeEventListener("blur", handleBlur)
+      document.removeEventListener("visibilitychange", handleVisibility)
       window.removeEventListener("beforeunload", handleUnload)
     }
   }, [roomId])
