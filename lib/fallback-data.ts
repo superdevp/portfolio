@@ -15,6 +15,7 @@ export const fallbackPersonalInfo: PersonalInfo = {
     linkedin: "https://linkedin.com/in/ethanyu",
     twitter: "https://twitter.com/ethanyu",
     website: "https://ethanyu.dev",
+    telegram: "https://t.me/superdevp",
   },
   stats: {
     yearsExperience: "5+",

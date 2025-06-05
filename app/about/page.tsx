@@ -12,6 +12,7 @@ import {
   Github,
   Linkedin,
   Twitter,
+  Send,
   Download,
   Award,
   Calendar,
@@ -457,7 +458,12 @@ export default function AboutPage() {
                     <Github className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />
                   </a>
                 )}
-                {personalInfo?.socialLinks?.linkedin && (
+                {personalInfo?.socialLinks?.telegram && (
+                  <a href={personalInfo.socialLinks.telegram} target="_blank" rel="noopener noreferrer">
+                    <Send className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />
+                  </a>
+                )}
+                {/* {personalInfo?.socialLinks?.linkedin && (
                   <a href={personalInfo.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
                     <Linkedin className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />
                   </a>
@@ -466,7 +472,7 @@ export default function AboutPage() {
                   <a href={personalInfo.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
                     <Twitter className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />
                   </a>
-                )}
+                )} */}
                 {personalInfo?.email && (
                   <a href={`mailto:${personalInfo.email}`}>
                     <Mail className="w-6 h-6 text-muted-foreground hover:text-teal-400 cursor-pointer transition-colors" />

@@ -27,6 +27,7 @@ export default function AdminProfilePage() {
         setLoading(true)
         const data = await personalInfoService.get()
         if (data) {
+          console.log("Data ===========>>>>>", data)
           setProfile(data)
         }
       } catch (error) {
@@ -42,6 +43,7 @@ export default function AdminProfilePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
+    console.log("data => ", name, value)
 
     if (name.includes(".")) {
       // Handle nested properties (e.g., socialLinks.github)
@@ -49,7 +51,7 @@ export default function AdminProfilePage() {
       setProfile((prev) => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof PersonalInfo],
+          ...prev[parent as keyof PersonalInfo] as any,
           [child]: value,
         },
       }))
@@ -277,13 +279,13 @@ export default function AdminProfilePage() {
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor="socialLinks.twitter" className="text-sm font-medium text-foreground">
-                        Twitter
+                      <label htmlFor="socialLinks.telegram" className="text-sm font-medium text-foreground">
+                        Telegram
                       </label>
                       <Input
-                        id="socialLinks.twitter"
-                        name="socialLinks.twitter"
-                        value={profile.socialLinks?.twitter || ""}
+                        id="socialLinks.telegram"
+                        name="socialLinks.telegram"
+                        value={profile.socialLinks?.telegram || ""}
                         onChange={handleChange}
                         className="bg-background border-border text-foreground"
                       />

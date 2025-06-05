@@ -32,7 +32,8 @@ export interface PersonalInfo {
     github?: string
     linkedin?: string
     twitter?: string
-    website?: string
+    website?: string,
+    telegram?: string
   }
   stats: {
     yearsExperience: string
