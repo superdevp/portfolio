@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, query, where } from "firebase/firestore"
+import { collection, doc, getDocs, getDoc, addDoc, updateDoc, deleteDoc, setDoc, query, where } from "firebase/firestore"
 import { db } from "./firebase"
 import type { BlogPost, PersonalInfo, Project, Skill, Experience } from "./types"
 
@@ -11,6 +11,7 @@ const COLLECTIONS = {
   EXPERIENCE: "experience",
   ACHIEVEMENTS: "achievements",
   INTERESTS: "interests",
+  FOLLOWERS: "followers",
 }
 
 // Blog Posts Services
@@ -450,4 +451,46 @@ export const interestsService = {
       return false
     }
   },
+}
+
+// Followers Service
+export async function followBlog(userId: string): Promise<void> {
+  try {
+    await setDoc(doc(db, COLLECTIONS.FOLLOWERS, userId), {
+      userId,
+      followedAt: new Date(),
+    })
+  } catch (error) {
+    console.error("Error recording follower:", error)
+    throw error
+  }
+}
+
+export async function unfollowBlog(userId: string): Promise<void> {
+  try {
+    await deleteDoc(doc(db, COLLECTIONS.FOLLOWERS, userId))
+  } catch (error) {
+    console.error("Error removing follower:", error)
+    throw error
+  }
+}
+
+export async function getFollowerCount(): Promise<number> {
+  try {
+    const snapshot = await getDocs(collection(db, COLLECTIONS.FOLLOWERS))
+    return snapshot.size
+  } catch (error) {
+    console.error("Error fetching followers:", error)
+    return 0
+  }
+}
+
+export async function isFollowing(userId: string): Promise<boolean> {
+  try {
+    const docSnap = await getDoc(doc(db, COLLECTIONS.FOLLOWERS, userId))
+    return docSnap.exists()
+  } catch (error) {
+    console.error("Error checking follower:", error)
+    return false
+  }
 }

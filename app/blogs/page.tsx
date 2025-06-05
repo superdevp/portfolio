@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Header } from "@/components/header"
 import { LoadingSection } from "@/components/loading-spinner"
 import { Calendar, Clock, Search, ArrowRight, TrendingUp, ThumbsUp, MessageSquare, Eye } from "lucide-react"
+import { FollowButton } from "@/components/follow-button"
 import { useBlogPosts, useFeaturedPosts } from "@/hooks/useFirebaseData"
 
 export default function BlogsPage() {
@@ -18,6 +19,20 @@ export default function BlogsPage() {
   const { posts: featuredPosts, loading: featuredLoading } = useFeaturedPosts()
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("all")
+  const [followerCount, setFollowerCount] = useState(0)
+
+  useEffect(() => {
+    const loadFollowers = async () => {
+      try {
+        const res = await fetch("/api/follow")
+        const data = await res.json()
+        if (data.count !== undefined) setFollowerCount(data.count)
+      } catch {
+        // ignore
+      }
+    }
+    loadFollowers()
+  }, [])
 
   // Extract categories from posts
   const categories = Array.from(new Set(allPosts.map((post) => post.category).filter(Boolean)))
@@ -28,6 +43,7 @@ export default function BlogsPage() {
     totalViews: allPosts.reduce((sum, post) => sum + Number.parseInt(post.views?.replace(/[^\d]/g, "") || "0"), 0),
     totalLikes: allPosts.reduce((sum, post) => sum + Number.parseInt(post.likes || "0"), 0),
     totalComments: allPosts.reduce((sum, post) => sum + Number.parseInt(post.comments || "0"), 0),
+    followers: followerCount,
   }
 
   // Filter posts based on search query and active tab
@@ -78,6 +94,9 @@ export default function BlogsPage() {
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
             </div>
+            <div className="mt-6">
+              <FollowButton />
+            </div>
           </div>
         </div>
       </section>
@@ -85,7 +104,7 @@ export default function BlogsPage() {
       {/* Stats Section */}
       <section className="py-10 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
             <div className="text-center">
               <div className="text-3xl lg:text-4xl font-bold text-teal-400 mb-2">{blogStats.totalPosts}</div>
               <div className="text-muted-foreground">Articles</div>
@@ -103,6 +122,10 @@ export default function BlogsPage() {
             <div className="text-center">
               <div className="text-3xl lg:text-4xl font-bold text-teal-400 mb-2">{blogStats.totalComments}</div>
               <div className="text-muted-foreground">Comments</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl lg:text-4xl font-bold text-teal-400 mb-2">{blogStats.followers}</div>
+              <div className="text-muted-foreground">Followers</div>
             </div>
           </div>
         </div>
