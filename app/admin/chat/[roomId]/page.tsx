@@ -54,9 +54,22 @@ function AdminChatRoomContent() {
       roomId,
       (online) => setUserOnline(online),
     )
-    const handleUnload = () => {
-      chatService.updateAdminOnlineStatus(roomId, false)
+
+    const updateStatus = (online: boolean) =>
+      chatService.updateAdminOnlineStatus(roomId, online)
+
+    const handleVisibility = () => {
+      updateStatus(document.visibilityState === "visible")
     }
+
+    const handleFocus = () => updateStatus(true)
+    const handleBlur = () => updateStatus(false)
+    const handleUnload = () => updateStatus(false)
+
+    updateStatus(document.visibilityState === "visible")
+    window.addEventListener("focus", handleFocus)
+    window.addEventListener("blur", handleBlur)
+    document.addEventListener("visibilitychange", handleVisibility)
     window.addEventListener("beforeunload", handleUnload)
 
     return () => {
@@ -64,6 +77,9 @@ function AdminChatRoomContent() {
       unsubscribeTyping()
       unsubscribeUserOnline()
       chatService.updateAdminOnlineStatus(roomId, false)
+      window.removeEventListener("focus", handleFocus)
+      window.removeEventListener("blur", handleBlur)
+      document.removeEventListener("visibilitychange", handleVisibility)
       window.removeEventListener("beforeunload", handleUnload)
     }
   }, [roomId])
