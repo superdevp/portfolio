@@ -23,6 +23,10 @@ function ChatPageContent() {
   const [sending, setSending] = useState(false)
   const [roomId, setRoomId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [typingUser, setTypingUser] = useState<string | null>(null)
+  const typingTimeout = useRef<NodeJS.Timeout | null>(null)
+  const currentUserName =
+    user?.displayName || user?.email?.split("@")[0] || "User"
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -45,25 +49,36 @@ function ChatPageContent() {
         setRoomId(chatRoomId)
 
         // Listen to messages
-        const unsubscribe = chatService.onMessagesSnapshot(chatRoomId, (messages) => {
-          setMessages(messages)
-          setLoading(false)
+        const unsubscribeMessages = chatService.onMessagesSnapshot(
+          chatRoomId,
+          (messages) => {
+            setMessages(messages)
+            setLoading(false)
 
-          // Use the simpler room read marking approach
-          chatService.markRoomAsRead(chatRoomId)
-        })
+            // Use the simpler room read marking approach
+            chatService.markRoomAsRead(chatRoomId)
+          },
+        )
 
-        return unsubscribe
+        const unsubscribeTyping = chatService.onTypingStatusSnapshot(
+          chatRoomId,
+          (name) => setTypingUser(name),
+        )
+
+        return () => {
+          unsubscribeMessages()
+          unsubscribeTyping()
+        }
       } catch (error) {
         console.error("Error initializing chat:", error)
         setLoading(false)
       }
     }
 
-    const unsubscribe = initializeChat()
+    const unsubscribePromise = initializeChat()
     return () => {
-      if (unsubscribe) {
-        unsubscribe.then((unsub) => unsub?.())
+      if (unsubscribePromise) {
+        unsubscribePromise.then((unsub) => unsub?.())
       }
     }
   }, [user])
@@ -83,11 +98,22 @@ function ChatPageContent() {
         false,
       )
       setNewMessage("")
+      chatService.updateTypingStatus(roomId, null)
     } catch (error) {
       console.error("Error sending message:", error)
     } finally {
       setSending(false)
     }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value)
+    if (!roomId) return
+    chatService.updateTypingStatus(roomId, currentUserName)
+    if (typingTimeout.current) clearTimeout(typingTimeout.current)
+    typingTimeout.current = setTimeout(() => {
+      chatService.updateTypingStatus(roomId, null)
+    }, 1000)
   }
 
   const handleSignOut = async () => {
@@ -167,10 +193,13 @@ function ChatPageContent() {
                         </div>
                       </div>
                     </div>
-                  ))
-                )}
-                <div ref={messagesEndRef} />
-              </div>
+                ))
+              )}
+              {typingUser && typingUser !== currentUserName && (
+                <p className="text-xs text-muted-foreground">{typingUser} is typing...</p>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
 
             </CardContent>
           </Card>
@@ -178,7 +207,7 @@ function ChatPageContent() {
               <form onSubmit={handleSendMessage} className="flex space-x-2">
                 <Input
                   value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
+                  onChange={handleInputChange}
                   placeholder="Type your message..."
                   disabled={sending}
                   className="flex-1"

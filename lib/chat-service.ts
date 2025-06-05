@@ -33,6 +33,7 @@ export interface ChatRoom {
   lastMessageTime: any
   unreadCount: number
   isActive: boolean
+  typing?: string
 }
 
 export const chatService = {
@@ -167,5 +168,31 @@ export const chatService = {
     } catch (error) {
       console.error("Error marking room as read:", error)
     }
+  },
+
+  // Update typing status for a chat room
+  async updateTypingStatus(
+    roomId: string,
+    typingUser: string | null,
+  ): Promise<void> {
+    try {
+      await updateDoc(doc(db, "chatRooms", roomId), {
+        typing: typingUser,
+      })
+    } catch (error) {
+      console.error("Error updating typing status:", error)
+    }
+  },
+
+  // Listen to typing status changes
+  onTypingStatusSnapshot(
+    roomId: string,
+    callback: (typingUser: string | null) => void,
+  ): () => void {
+    const roomDoc = doc(db, "chatRooms", roomId)
+    return onSnapshot(roomDoc, (snapshot) => {
+      const data = snapshot.data()
+      callback((data?.typing as string) || null)
+    })
   },
 }

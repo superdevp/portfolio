@@ -25,6 +25,9 @@ function AdminChatRoomContent() {
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [typingUser, setTypingUser] = useState<string | null>(null)
+  const typingTimeout = useRef<NodeJS.Timeout | null>(null)
+  const currentUserName = "Ethan (Admin)"
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -38,12 +41,17 @@ function AdminChatRoomContent() {
     if (!roomId) return
 
     // Listen to messages
-    const unsubscribe = chatService.onMessagesSnapshot(roomId, (messages) => {
+    const unsubscribeMessages = chatService.onMessagesSnapshot(roomId, (messages) => {
       setMessages(messages)
       setLoading(false)
     })
 
-    return unsubscribe
+    const unsubscribeTyping = chatService.onTypingStatusSnapshot(roomId, (name) => setTypingUser(name))
+
+    return () => {
+      unsubscribeMessages()
+      unsubscribeTyping()
+    }
   }, [roomId])
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -61,11 +69,22 @@ function AdminChatRoomContent() {
         true, // isAdmin = true
       )
       setNewMessage("")
+      chatService.updateTypingStatus(roomId, null)
     } catch (error) {
       console.error("Error sending message:", error)
     } finally {
       setSending(false)
     }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value)
+    if (!roomId) return
+    chatService.updateTypingStatus(roomId, currentUserName)
+    if (typingTimeout.current) clearTimeout(typingTimeout.current)
+    typingTimeout.current = setTimeout(() => {
+      chatService.updateTypingStatus(roomId, null)
+    }, 1000)
   }
 
   if (loading) {
@@ -134,19 +153,22 @@ function AdminChatRoomContent() {
                 </div>
               ))
             )}
+            {typingUser && typingUser !== currentUserName && (
+              <p className="text-xs text-muted-foreground">{typingUser} is typing...</p>
+            )}
             <div ref={messagesEndRef} />
           </div>
 
           {/* Message Input */}
           <form onSubmit={handleSendMessage} className="flex space-x-2">
-            <Input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type your reply..."
-              disabled={sending}
-              className="flex-1"
-              autoFocus
-            />
+              <Input
+                value={newMessage}
+                onChange={handleInputChange}
+                placeholder="Type your reply..."
+                disabled={sending}
+                className="flex-1"
+                autoFocus
+              />
             <Button type="submit" disabled={sending || !newMessage.trim()}>
               {sending ? <LoadingSpinner size="sm" /> : <Send className="w-4 h-4" />}
             </Button>
