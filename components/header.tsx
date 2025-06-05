@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Github, Search, Home, FileText, MessageCircle, Phone } from "lucide-react"
+import { Github, Search, Home, FileText, MessageCircle, Phone, Code } from "lucide-react"
 import { SearchModal } from "./search-modal"
 import { ThemeToggle } from "./theme-toggle"
 import { useState } from "react"
@@ -44,6 +44,15 @@ export function Header() {
             >
               <FileText className="w-4 h-4" />
               <span>Blogs</span>
+            </Link>
+            <Link
+              href="/projects"
+              className={`flex items-center space-x-1 hover:text-teal-400 transition-colors ${
+                isActive("/projects") ? "text-teal-400" : "text-muted-foreground"
+              }`}
+            >
+              <Code className="w-4 h-4" />
+              <span>Projects</span>
             </Link>
             <Link
               href="/about"
