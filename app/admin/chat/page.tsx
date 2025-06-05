@@ -94,7 +94,7 @@ function AdminChatContent() {
                   <div className="flex items-center space-x-4">
                     <Avatar>
                       <AvatarFallback className="bg-blue-500 text-white">
-                        {room.userName.charAt(0).toUpperCase()}
+                        {room.userName?.charAt(0).toUpperCase() || ''}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
