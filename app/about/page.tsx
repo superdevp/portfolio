@@ -221,169 +221,189 @@ export default function AboutPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <Card key={index} className="bg-card border-border text-center">
-                <CardContent className="p-6">
-                  <div className="text-teal-400 mb-3 flex justify-center">{stat.icon}</div>
-                  <div className="text-3xl font-bold text-foreground mb-2">{stat.number}</div>
-                  <div className="text-muted-foreground text-sm">{stat.label}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Experience Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Professional Experience</h2>
-            <p className="text-muted-foreground text-lg">My journey in the tech industry</p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <div className="relative">
-              {/* Timeline line */}
-              <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-teal-400/30"></div>
-
-              <div className="space-y-12">
-                {experienceData.map((exp, index) => (
-                  <div key={index} className="relative flex items-start space-x-8">
-                    {/* Timeline dot */}
-                    <div
-                      className={`relative z-10 w-16 h-16 rounded-full border-4 flex items-center justify-center ${
-                        exp.current ? "bg-teal-400 border-teal-400" : "bg-card border-border"
-                      }`}
-                    >
-                      <Briefcase className={`w-6 h-6 ${exp.current ? "text-gray-900" : "text-teal-400"}`} />
-                    </div>
-
-                    {/* Content */}
-                    <Card className="flex-1 bg-card border-border hover:border-teal-400 transition-colors">
-                      <CardContent className="p-8">
-                        <div className="flex flex-wrap items-start justify-between mb-4">
-                          <div>
-                            <h3 className="text-xl font-bold text-teal-400 mb-1">{exp.title}</h3>
-                            <p className="text-lg font-semibold text-foreground">{exp.company}</p>
-                            <p className="text-muted-foreground text-sm">{exp.location}</p>
-                          </div>
-                          <div
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              exp.current ? "bg-teal-400/20 text-teal-400" : "bg-muted text-muted-foreground"
-                            }`}
-                          >
-                            {exp.period}
-                          </div>
-                        </div>
-
-                        <p className="text-muted-foreground mb-6">{exp.description}</p>
-
-                        <div>
-                          <h4 className="font-semibold mb-3 text-foreground">Key Achievements:</h4>
-                          <ul className="space-y-2">
-                            {exp.achievements.map((achievement, achIndex) => (
-                              <li key={achIndex} className="flex items-start space-x-2 text-muted-foreground">
-                                <div className="w-1.5 h-1.5 bg-teal-400 rounded-full mt-2 flex-shrink-0"></div>
-                                <span>{achievement}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+      {
+        stats.length > 0 && (
+          <section className="py-16 bg-muted/30">
+            <div className="container mx-auto px-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {stats.map((stat, index) => (
+                  <Card key={index} className="bg-card border-border text-center">
+                    <CardContent className="p-6">
+                      <div className="text-teal-400 mb-3 flex justify-center">{stat.icon}</div>
+                      <div className="text-3xl font-bold text-foreground mb-2">{stat.number}</div>
+                      <div className="text-muted-foreground text-sm">{stat.label}</div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
+        )
+      }
 
-      {/* Skills Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Technical Skills</h2>
-            <p className="text-muted-foreground text-lg">Technologies and tools I work with</p>
-          </div>
+      {/* Experience Section */}
+      {
+        experienceData.length > 0 && (
+          <section className="py-20">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl font-bold mb-4">Professional Experience</h2>
+                <p className="text-muted-foreground text-lg">My journey in the tech industry</p>
+              </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            {skillsData.map((skillGroup, index) => (
-              <Card key={index} className="bg-card border-border hover:border-teal-400 transition-colors">
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-4 text-teal-400">{skillGroup.category}</h3>
-                  <div className="space-y-3">
-                    {skillGroup.items.map((skill, skillIndex) => (
-                      <div key={skillIndex} className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-teal-400 rounded-full"></div>
-                        <span className="text-muted-foreground">{skill}</span>
+              <div className="max-w-4xl mx-auto">
+                <div className="relative">
+                  {/* Timeline line */}
+                  <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-teal-400/30"></div>
+
+                  <div className="space-y-12">
+                    {experienceData.map((exp, index) => (
+                      <div key={index} className="relative flex items-start space-x-8">
+                        {/* Timeline dot */}
+                        <div
+                          className={`relative z-10 w-16 h-16 rounded-full border-4 flex items-center justify-center ${
+                            exp.current ? "bg-teal-400 border-teal-400" : "bg-card border-border"
+                          }`}
+                        >
+                          <Briefcase className={`w-6 h-6 ${exp.current ? "text-gray-900" : "text-teal-400"}`} />
+                        </div>
+
+                        {/* Content */}
+                        <Card className="flex-1 bg-card border-border hover:border-teal-400 transition-colors">
+                          <CardContent className="p-8">
+                            <div className="flex flex-wrap items-start justify-between mb-4">
+                              <div>
+                                <h3 className="text-xl font-bold text-teal-400 mb-1">{exp.title}</h3>
+                                <p className="text-lg font-semibold text-foreground">{exp.company}</p>
+                                <p className="text-muted-foreground text-sm">{exp.location}</p>
+                              </div>
+                              <div
+                                className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                  exp.current ? "bg-teal-400/20 text-teal-400" : "bg-muted text-muted-foreground"
+                                }`}
+                              >
+                                {exp.period}
+                              </div>
+                            </div>
+
+                            <p className="text-muted-foreground mb-6">{exp.description}</p>
+
+                            <div>
+                              <h4 className="font-semibold mb-3 text-foreground">Key Achievements:</h4>
+                              <ul className="space-y-2">
+                                {exp.achievements.map((achievement, achIndex) => (
+                                  <li key={achIndex} className="flex items-start space-x-2 text-muted-foreground">
+                                    <div className="w-1.5 h-1.5 bg-teal-400 rounded-full mt-2 flex-shrink-0"></div>
+                                    <span>{achievement}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </CardContent>
+                        </Card>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+                </div>
+              </div>
+            </div>
+          </section>
+        )
+      }
+
+      {/* Skills Section */}
+      {
+        skillsData.length > 0 && (
+          <section className="py-20 bg-muted/30">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl font-bold mb-4">Technical Skills</h2>
+                <p className="text-muted-foreground text-lg">Technologies and tools I work with</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+                {skillsData.map((skillGroup, index) => (
+                  <Card key={index} className="bg-card border-border hover:border-teal-400 transition-colors">
+                    <CardContent className="p-6">
+                      <h3 className="text-xl font-bold mb-4 text-teal-400">{skillGroup.category}</h3>
+                      <div className="space-y-3">
+                        {skillGroup.items.map((skill, skillIndex) => (
+                          <div key={skillIndex} className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-teal-400 rounded-full"></div>
+                            <span className="text-muted-foreground">{skill}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+        )
+      }
 
       {/* Achievements Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Achievements & Certifications</h2>
-            <p className="text-muted-foreground text-lg">Recognition and continuous learning</p>
-          </div>
+      {
+        achievementsData.length > 0 && (
+          <section className="py-20">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl font-bold mb-4">Achievements & Certifications</h2>
+                <p className="text-muted-foreground text-lg">Recognition and continuous learning</p>
+              </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
-            {achievementsData.map((achievement, index) => (
-              <Card
-                key={index}
-                className="bg-card border-border hover:border-teal-400 transition-all duration-300 hover:transform hover:scale-105"
-              >
-                <CardContent className="p-6 text-center">
-                  <div className="text-teal-400 mb-4 flex justify-center">
-                    {achievement.icon || getIconComponent(achievement.iconName || "Award")}
-                  </div>
-                  <h3 className="font-semibold mb-2 text-foreground">{achievement.title}</h3>
-                  <p className="text-muted-foreground text-sm">{achievement.year}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                {achievementsData.map((achievement, index) => (
+                  <Card
+                    key={index}
+                    className="bg-card border-border hover:border-teal-400 transition-all duration-300 hover:transform hover:scale-105"
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className="text-teal-400 mb-4 flex justify-center">
+                        {achievement.icon || getIconComponent(achievement.iconName || "Award")}
+                      </div>
+                      <h3 className="font-semibold mb-2 text-foreground">{achievement.title}</h3>
+                      <p className="text-muted-foreground text-sm">{achievement.year}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+        )
+      }
 
       {/* Interests Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Beyond Code</h2>
-            <p className="text-muted-foreground text-lg">What I'm passionate about outside of work</p>
-          </div>
+      {
+        interestsData.length > 0 && (
+          <section className="py-20 bg-muted/30">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-16">
+                <h2 className="text-4xl font-bold mb-4">Beyond Code</h2>
+                <p className="text-muted-foreground text-lg">What I'm passionate about outside of work</p>
+              </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
-            {interestsData.map((interest, index) => (
-              <Card
-                key={index}
-                className="bg-card border-border hover:border-teal-400 transition-all duration-300 hover:transform hover:scale-105"
-              >
-                <CardContent className="p-6 text-center">
-                  <div className="text-teal-400 mb-4 flex justify-center">
-                    {interest.icon || getIconComponent(interest.iconName || "Code")}
-                  </div>
-                  <h3 className="font-semibold mb-2 text-foreground">{interest.title}</h3>
-                  <p className="text-muted-foreground text-sm">{interest.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
+                {interestsData.map((interest, index) => (
+                  <Card
+                    key={index}
+                    className="bg-card border-border hover:border-teal-400 transition-all duration-300 hover:transform hover:scale-105"
+                  >
+                    <CardContent className="p-6 text-center">
+                      <div className="text-teal-400 mb-4 flex justify-center">
+                        {interest.icon || getIconComponent(interest.iconName || "Code")}
+                      </div>
+                      <h3 className="font-semibold mb-2 text-foreground">{interest.title}</h3>
+                      <p className="text-muted-foreground text-sm">{interest.description}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+        )
+      }
 
       {/* Contact CTA */}
       <section className="py-20">
