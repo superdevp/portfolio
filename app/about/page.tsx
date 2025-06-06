@@ -52,23 +52,7 @@ export default function AboutPage() {
   ]
 
   // Fallback skills if not available from Firebase
-  const skillsData =
-    skills.length > 0
-      ? skills
-      : [
-          {
-            category: "Frontend",
-            items: ["React.js", "Next.js", "TypeScript", "Tailwind CSS", "Vue.js"],
-            color: "blue",
-          },
-          { category: "Backend", items: ["Node.js", "Express", "Python", "PostgreSQL", "MongoDB"], color: "green" },
-          { category: "Tools", items: ["Git", "Docker", "AWS", "Figma", "VS Code"], color: "purple" },
-          {
-            category: "Soft Skills",
-            items: ["Leadership", "Communication", "Problem Solving", "Team Work"],
-            color: "orange",
-          },
-        ]
+  const skillsData = skills.length > 0 ? skills : []
 
   // Fallback experience if not available from Firebase
   const experienceData =
@@ -77,38 +61,10 @@ export default function AboutPage() {
       : []
 
   // Fallback achievements if not available from Firebase
-  const achievementsData =
-    achievements.length > 0
-      ? achievements
-      : [
-          { icon: <Award className="w-6 h-6" />, title: "AWS Certified Developer", year: "2023" },
-          { icon: <Code className="w-6 h-6" />, title: "React Expert Certification", year: "2022" },
-          { icon: <Users className="w-6 h-6" />, title: "Team Leadership Award", year: "2023" },
-          { icon: <Target className="w-6 h-6" />, title: "Project Excellence Award", year: "2022" },
-        ]
+  const achievementsData = achievements.length > 0 ? achievements : []
 
   // Fallback interests if not available from Firebase
-  const interestsData =
-    interests.length > 0
-      ? interests
-      : [
-          {
-            icon: <Code className="w-8 h-8" />,
-            title: "Open Source",
-            description: "Contributing to open source projects",
-          },
-          {
-            icon: <BookOpen className="w-8 h-8" />,
-            title: "Tech Writing",
-            description: "Writing technical blogs and tutorials",
-          },
-          {
-            icon: <Coffee className="w-8 h-8" />,
-            title: "Coffee Brewing",
-            description: "Exploring different brewing methods",
-          },
-          { icon: <Heart className="w-8 h-8" />, title: "Mentoring", description: "Helping junior developers grow" },
-        ]
+  const interestsData = interests.length > 0 ? interests : []
 
   // Map icons for achievements and interests
   const getIconComponent = (iconName: string): JSX.Element => {
