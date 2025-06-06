@@ -294,12 +294,8 @@ export const experienceService = {
         ...doc.data(),
       })) as Experience[]
 
-      // Sort by start date on client side (most recent first)
-      return experiences.sort((a, b) => {
-        const dateA = new Date(a.startDate).getTime()
-        const dateB = new Date(b.startDate).getTime()
-        return dateB - dateA
-      })
+      // Sort by order if present
+      return experiences.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
     } catch (error) {
       console.error("Error fetching experience:", error)
       return []

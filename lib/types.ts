@@ -74,13 +74,11 @@ export interface Experience {
   title: string
   company: string
   location: string
-  startDate: string
-  endDate?: string
+  period: string
   current: boolean
   description: string
   achievements: string[]
   order?: number
-  period?: string
 }
 
 export interface Achievement {
