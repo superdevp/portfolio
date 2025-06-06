@@ -74,49 +74,7 @@ export default function AboutPage() {
   const experienceData =
     experience.length > 0
       ? experience
-      : [
-          {
-            title: "Senior Full-Stack Developer",
-            company: "Tech Solutions Inc.",
-            period: "2022 - Present",
-            location: "San Francisco, CA",
-            description:
-              "Leading development of scalable web applications using React, Node.js, and cloud technologies. Mentoring junior developers and implementing best practices.",
-            achievements: [
-              "Led a team of 5 developers on a major e-commerce platform",
-              "Improved application performance by 40%",
-              "Implemented CI/CD pipelines reducing deployment time by 60%",
-            ],
-            current: true,
-          },
-          {
-            title: "Full-Stack Developer",
-            company: "Digital Agency",
-            period: "2020 - 2022",
-            location: "San Francisco, CA",
-            description:
-              "Developed and maintained multiple client projects, focusing on responsive design and performance optimization.",
-            achievements: [
-              "Delivered 15+ client projects on time and within budget",
-              "Reduced page load times by 50% through optimization",
-              "Mentored 3 junior developers",
-            ],
-            current: false,
-          },
-          {
-            title: "Frontend Developer",
-            company: "StartupCo",
-            period: "2019 - 2020",
-            location: "San Francisco, CA",
-            description: "Built user interfaces for web applications using React and modern CSS frameworks.",
-            achievements: [
-              "Developed responsive UI components library",
-              "Collaborated with UX team to improve user experience",
-              "Implemented accessibility standards (WCAG 2.1)",
-            ],
-            current: false,
-          },
-        ]
+      : []
 
   // Fallback achievements if not available from Firebase
   const achievementsData =
