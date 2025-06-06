@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { skillsService, experienceService, genericService } from "@/lib/firebase-services"
 import { Plus, X, Edit, Trash2, CheckCircle, AlertCircle } from "lucide-react"
@@ -31,8 +32,7 @@ export default function AdminSettingsPage() {
     title: "",
     company: "",
     location: "",
-    startDate: "",
-    endDate: "",
+    period: "",
     current: false,
     description: "",
     achievements: [""],
@@ -40,6 +40,8 @@ export default function AdminSettingsPage() {
   })
   const [newAchievement, setNewAchievement] = useState({ title: "", year: "", icon: "Award", order: 1 })
   const [newInterest, setNewInterest] = useState({ title: "", description: "", icon: "Code", order: 1 })
+  const [editExperience, setEditExperience] = useState<Experience | null>(null)
+  const [editData, setEditData] = useState<Experience | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -132,7 +134,7 @@ export default function AdminSettingsPage() {
 
   // Experience Management
   const addExperience = async () => {
-    if (!newExperience.title.trim() || !newExperience.company.trim()) return
+    if (!newExperience.title.trim() || !newExperience.company.trim() || !newExperience.period.trim()) return
 
     setSaving(true)
     try {
@@ -143,8 +145,7 @@ export default function AdminSettingsPage() {
         title: "",
         company: "",
         location: "",
-        startDate: "",
-        endDate: "",
+        period: "",
         current: false,
         description: "",
         achievements: [""],
@@ -172,6 +173,23 @@ export default function AdminSettingsPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  const openEditExperience = (exp: Experience) => {
+    setEditExperience(exp)
+    setEditData(exp)
+  }
+
+  const handleEditChange = (field: keyof Experience, value: any) => {
+    if (!editData) return
+    setEditData({ ...editData, [field]: value })
+  }
+
+  const saveEditExperience = async () => {
+    if (!editData || !editExperience?.id) return
+    await updateExperience(editExperience.id, editData)
+    setEditExperience(null)
+    setEditData(null)
   }
 
   const deleteExperience = async (id: string) => {
@@ -487,21 +505,11 @@ export default function AdminSettingsPage() {
                     className="bg-background border-border"
                   />
                   <Input
-                    type="date"
-                    placeholder="Start date"
-                    value={newExperience.startDate}
-                    onChange={(e) => setNewExperience({ ...newExperience, startDate: e.target.value })}
+                    placeholder="Period (e.g., 2022 - Present)"
+                    value={newExperience.period}
+                    onChange={(e) => setNewExperience({ ...newExperience, period: e.target.value })}
                     className="bg-background border-border"
                   />
-                  {!newExperience.current && (
-                    <Input
-                      type="date"
-                      placeholder="End date"
-                      value={newExperience.endDate}
-                      onChange={(e) => setNewExperience({ ...newExperience, endDate: e.target.value })}
-                      className="bg-background border-border"
-                    />
-                  )}
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -522,6 +530,44 @@ export default function AdminSettingsPage() {
                   rows={3}
                   className="bg-background border-border"
                 />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Achievements:</label>
+                  {newExperience.achievements.map((ach, index) => (
+                    <div key={index} className="flex space-x-2">
+                      <Input
+                        placeholder="Achievement"
+                        value={ach}
+                        onChange={(e) => {
+                          const items = [...newExperience.achievements]
+                          items[index] = e.target.value
+                          setNewExperience({ ...newExperience, achievements: items })
+                        }}
+                        className="bg-background border-border"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const items = newExperience.achievements.filter((_, i) => i !== index)
+                          setNewExperience({ ...newExperience, achievements: items })
+                        }}
+                        className="border-border"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setNewExperience({ ...newExperience, achievements: [...newExperience.achievements, ""] })}
+                    className="border-border"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />Add Achievement
+                  </Button>
+                </div>
                 <Button
                   onClick={addExperience}
                   disabled={saving}
@@ -542,16 +588,14 @@ export default function AdminSettingsPage() {
                         <h3 className="text-lg font-semibold text-teal-400">{exp.title}</h3>
                         <p className="text-foreground font-medium">{exp.company}</p>
                         <p className="text-muted-foreground text-sm">{exp.location}</p>
-                        <p className="text-muted-foreground text-sm">
-                          {exp.startDate} - {exp.current ? "Present" : exp.endDate}
-                        </p>
+                        <p className="text-muted-foreground text-sm">{exp.period}</p>
                         <p className="text-muted-foreground mt-2">{exp.description}</p>
                       </div>
                       <div className="flex space-x-2">
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setEditingItem(exp.id || "")}
+                          onClick={() => exp && openEditExperience(exp)}
                           className="text-muted-foreground hover:text-foreground"
                         >
                           <Edit className="w-4 h-4" />
@@ -570,6 +614,105 @@ export default function AdminSettingsPage() {
                 </Card>
               ))}
             </div>
+
+            <Dialog open={!!editExperience} onOpenChange={(open) => !open && setEditExperience(null)}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Experience</DialogTitle>
+                </DialogHeader>
+                {editData && (
+                  <div className="space-y-4">
+                    <Input
+                      placeholder="Job title"
+                      value={editData.title}
+                      onChange={(e) => handleEditChange("title", e.target.value)}
+                      className="bg-background border-border"
+                    />
+                    <Input
+                      placeholder="Company name"
+                      value={editData.company}
+                      onChange={(e) => handleEditChange("company", e.target.value)}
+                      className="bg-background border-border"
+                    />
+                    <Input
+                      placeholder="Location"
+                      value={editData.location}
+                      onChange={(e) => handleEditChange("location", e.target.value)}
+                      className="bg-background border-border"
+                    />
+                    <Input
+                      placeholder="Period"
+                      value={editData.period}
+                      onChange={(e) => handleEditChange("period", e.target.value)}
+                      className="bg-background border-border"
+                    />
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="edit-current"
+                        checked={editData.current}
+                        onChange={(e) => handleEditChange("current", e.target.checked)}
+                        className="rounded border-border"
+                      />
+                      <label htmlFor="edit-current" className="text-sm font-medium">
+                        Current position
+                      </label>
+                    </div>
+                    <Textarea
+                      placeholder="Job description"
+                      value={editData.description}
+                      onChange={(e) => handleEditChange("description", e.target.value)}
+                      rows={3}
+                      className="bg-background border-border"
+                    />
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Achievements:</label>
+                      {editData.achievements.map((ach, index) => (
+                        <div key={index} className="flex space-x-2">
+                          <Input
+                            placeholder="Achievement"
+                            value={ach}
+                            onChange={(e) => {
+                              const items = [...editData.achievements]
+                              items[index] = e.target.value
+                              handleEditChange("achievements", items)
+                            }}
+                            className="bg-background border-border"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const items = editData.achievements.filter((_, i) => i !== index)
+                              handleEditChange("achievements", items)
+                            }}
+                            className="border-border"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditChange("achievements", [...editData.achievements, ""]) }
+                        className="border-border"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />Add Achievement
+                      </Button>
+                    </div>
+                    <div className="flex justify-end pt-2 space-x-2">
+                      <Button variant="outline" onClick={() => setEditExperience(null)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={saveEditExperience}>Save</Button>
+                    </div>
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
           </div>
         )}
 

@@ -148,7 +148,7 @@ export async function initializeFirebaseData() {
         title: "Senior Full-Stack Developer",
         company: "Tech Solutions Inc.",
         location: "San Francisco, CA",
-        startDate: "2022-01-01",
+        period: "2022 - Present",
         current: true,
         description:
           "Leading development of scalable web applications using React, Node.js, and cloud technologies. Mentoring junior developers and implementing best practices.",
@@ -163,8 +163,7 @@ export async function initializeFirebaseData() {
         title: "Full-Stack Developer",
         company: "Digital Agency",
         location: "San Francisco, CA",
-        startDate: "2020-01-01",
-        endDate: "2021-12-31",
+        period: "2020 - 2021",
         current: false,
         description:
           "Developed and maintained multiple client projects, focusing on responsive design and performance optimization.",
