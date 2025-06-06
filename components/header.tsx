@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Github, Search, Home, FileText, MessageCircle, Code } from "lucide-react"
+import { Github, Search, Home, FileText, MessageCircle, Code, User } from "lucide-react"
 import { SearchModal } from "./search-modal"
 import { ThemeToggle } from "./theme-toggle"
 import { useState } from "react"
@@ -62,7 +62,7 @@ export function Header() {
                 isActive("/about") ? "text-teal-400" : "text-muted-foreground"
               }`}
             >
-              <MessageCircle className="w-4 h-4" />
+              <User className="w-4 h-4" />
               <span>About</span>
             </Link>
 
