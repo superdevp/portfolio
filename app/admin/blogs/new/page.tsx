@@ -24,7 +24,7 @@ export default function NewBlogPostPage() {
     title: "",
     excerpt: "",
     content: "",
-    author: "Ethan Yu",
+    author: "Kei Nishikori",
     date: new Date().toLocaleDateString("en-GB"),
     readTime: "5 Min",
     views: "0",

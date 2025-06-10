@@ -8,9 +8,9 @@ import { AuthProvider } from "@/contexts/auth-context"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Ethan Yu - Full-Stack Developer",
+  title: "Kei Nishikori - Full-Stack Developer",
   description:
-    "Portfolio website of Ethan Yu, a passionate full-stack developer specializing in React, Node.js, and modern web technologies.",
+    "Portfolio website of Kei Nishikori, a passionate full-stack developer specializing in React, Node.js, and modern web technologies.",
   generator: "v0.dev",
   icons: {
     icon: "/icon.svg",

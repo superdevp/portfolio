@@ -182,7 +182,7 @@ function ChatPageContent() {
           <Card className="h-[calc(100vh-200px)] flex flex-col">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <div>
-                <CardTitle className="text-2xl">Chat with Ethan</CardTitle>
+                <CardTitle className="text-2xl">Chat with Kei</CardTitle>
                 <p className="text-sm text-muted-foreground">
                   Welcome, {user?.displayName || user?.email?.split("@")[0]}!
                 </p>

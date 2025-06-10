@@ -112,7 +112,7 @@ export default function AboutPage() {
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
                   {personalInfo?.bio ||
-                    `I'm ${personalInfo?.name || "Ethan Yu"}, a dedicated full-stack developer based in ${personalInfo?.location || "San Francisco, CA"}. I specialize in building modern web applications that combine beautiful design with robust functionality. My journey in tech started with curiosity and has evolved into a passion for creating solutions that make a real impact.`}
+                    `I'm ${personalInfo?.name || "Kei Nishikori"}, a dedicated full-stack developer based in ${personalInfo?.location || "San Francisco, CA"}. I specialize in building modern web applications that combine beautiful design with robust functionality. My journey in tech started with curiosity and has evolved into a passion for creating solutions that make a real impact.`}
                 </p>
               </div>
 
@@ -137,7 +137,7 @@ export default function AboutPage() {
                 </div>
                 <div className="flex items-center space-x-2 text-muted-foreground">
                   <Mail className="w-4 h-4" />
-                  <span>{personalInfo?.email || "ethan@example.com"}</span>
+                  <span>{personalInfo?.email || "kei@asvinfomedia.com"}</span>
                 </div>
               </div>
             </div>
@@ -148,7 +148,7 @@ export default function AboutPage() {
                 <div className="relative w-full h-full rounded-2xl overflow-hidden border-4 border-teal-400 shadow-2xl">
                   <Image
                     src={personalInfo?.profileImage || "/placeholder.svg?height=320&width=320"}
-                    alt={`${personalInfo?.name || "Ethan Yu"} - ${personalInfo?.title || "Full-Stack Developer"}`}
+                    alt={`${personalInfo?.name || "Kei Nishikori"} - ${personalInfo?.title || "Full-Stack Developer"}`}
                     width={320}
                     height={320}
                     className="w-full h-full object-cover"

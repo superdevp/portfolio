@@ -28,7 +28,7 @@ function AdminChatRoomContent() {
   const [typingUser, setTypingUser] = useState<string | null>(null)
   const [userOnline, setUserOnline] = useState(false)
   const typingTimeout = useRef<NodeJS.Timeout | null>(null)
-  const currentUserName = "Ethan (Admin)"
+  const currentUserName = "Kei (Admin)"
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -94,7 +94,7 @@ function AdminChatRoomContent() {
         roomId,
         newMessage.trim(),
         user.uid,
-        "Ethan (Admin)",
+        "Kei (Admin)",
         user.email || "",
         true, // isAdmin = true
       )

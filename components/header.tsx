@@ -26,7 +26,7 @@ export function Header() {
         <nav className="flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
             <div className="text-teal-400 font-mono text-lg">{"</>"}</div>
-            <span className="font-semibold text-foreground">EthanYu</span>
+            
           </Link>
           <div className="hidden md:flex items-center space-x-6">
             <Link

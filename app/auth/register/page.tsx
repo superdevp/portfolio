@@ -65,7 +65,7 @@ export default function RegisterPage() {
             <MessageCircle className="h-8 w-8 text-teal-400" />
           </div>
           <CardTitle className="text-2xl">Create Account</CardTitle>
-          <CardDescription>Sign up to start chatting with Ethan</CardDescription>
+          <CardDescription>Sign up to start chatting with Kei Nishikori</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
