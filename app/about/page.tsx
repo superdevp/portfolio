@@ -116,20 +116,6 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-4">
-                <Button className="bg-teal-400 text-gray-900 hover:bg-teal-500">
-                  <Download className="w-4 h-4 mr-2" />
-                  Download CV
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-teal-400 text-teal-400 hover:bg-teal-400 hover:text-gray-900"
-                >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Get In Touch
-                </Button>
-              </div>
-
               <div className="flex items-center space-x-6">
                 <div className="flex items-center space-x-2 text-muted-foreground">
                   <MapPin className="w-4 h-4" />
